@@ -24,9 +24,9 @@ final class OverlayPanelController {
             staleDateText: todoState.staleDateText
         )
         let hostingView = NSHostingView(rootView: content)
-        hostingView.frame = panel.contentView?.bounds ?? .zero
-        hostingView.autoresizingMask = [.width, .height]
-        panel.contentView?.addSubview(hostingView)
+        // Make the hosting view the content view directly so there's no
+        // intermediate NSView drawing a background behind the rounded corners
+        panel.contentView = hostingView
         self.hostingView = hostingView
     }
 

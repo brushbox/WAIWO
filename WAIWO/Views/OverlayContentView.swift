@@ -42,8 +42,10 @@ struct OverlayContentView: View {
             }
         }
         .padding(.horizontal, 16)
-        .padding(.vertical, 12)
+        .padding(.vertical, 16)
         .frame(minWidth: 300, maxWidth: 450, alignment: .leading)
         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .padding(4) // outer padding so shadow isn't clipped
     }
 }
