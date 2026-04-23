@@ -1,0 +1,34 @@
+name: WAIWO
+options:
+  bundleIdPrefix: com.waiwo
+  deploymentTarget:
+    macOS: "14.0"
+  xcodeVersion: "16.0"
+  generateEmptyDirectories: true
+settings:
+  SWIFT_VERSION: "6.0"
+  MACOSX_DEPLOYMENT_TARGET: "14.0"
+targets:
+  WAIWO:
+    type: application
+    platform: macOS
+    sources:
+      - WAIWO
+    entitlements:
+      path: WAIWO/WAIWO.entitlements
+    info:
+      path: WAIWO/Info.plist
+    settings:
+      INFOPLIST_FILE: WAIWO/Info.plist
+      CODE_SIGN_ENTITLEMENTS: WAIWO/WAIWO.entitlements
+      PRODUCT_BUNDLE_IDENTIFIER: com.waiwo.WAIWO
+      ENABLE_HARDENED_RUNTIME: true
+  WAIWOTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources:
+      - WAIWOTests
+    dependencies:
+      - target: WAIWO
+    settings:
+      PRODUCT_BUNDLE_IDENTIFIER: com.waiwo.WAIWOTests

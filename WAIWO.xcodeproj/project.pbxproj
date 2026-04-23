@@ -1,0 +1,385 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		5E358DB7F38CC4DBAA5546FE /* WAIWOApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9C6E67B74C1708D7888EAA0 /* WAIWOApp.swift */; };
+		D9EE7B976D6F8A0A27B9BDE6 /* WAIWOTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDF9797B701D63DE391D50AD /* WAIWOTests.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		2CC8851BE89F583131060243 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A9AB862A0A4E120656ACA804 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A4EAB9D903FDF10163ECB53C;
+			remoteInfo = WAIWO;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		66B764F098C8C4C209422F93 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		B439AC7A8F8C678B3F66427F /* WAIWO.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WAIWO.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		B9C6E67B74C1708D7888EAA0 /* WAIWOApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WAIWOApp.swift; sourceTree = "<group>"; };
+		BC0E03B01FBC46811D126E3D /* WAIWOTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = WAIWOTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		DDF9797B701D63DE391D50AD /* WAIWOTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WAIWOTests.swift; sourceTree = "<group>"; };
+		E7C90BF1306D8BD2AF80ACA7 /* WAIWO.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = WAIWO.entitlements; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		57059F10B0919170F011CDF5 /* WAIWO */ = {
+			isa = PBXGroup;
+			children = (
+				66B764F098C8C4C209422F93 /* Info.plist */,
+				E7C90BF1306D8BD2AF80ACA7 /* WAIWO.entitlements */,
+				B9C6E67B74C1708D7888EAA0 /* WAIWOApp.swift */,
+			);
+			path = WAIWO;
+			sourceTree = "<group>";
+		};
+		66F03220AE7CD56495711592 /* WAIWOTests */ = {
+			isa = PBXGroup;
+			children = (
+				DDF9797B701D63DE391D50AD /* WAIWOTests.swift */,
+			);
+			path = WAIWOTests;
+			sourceTree = "<group>";
+		};
+		9DEFF7F8E8DA8F2A9249336D /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				B439AC7A8F8C678B3F66427F /* WAIWO.app */,
+				BC0E03B01FBC46811D126E3D /* WAIWOTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F5610D2B9298EDACE0A027EB = {
+			isa = PBXGroup;
+			children = (
+				57059F10B0919170F011CDF5 /* WAIWO */,
+				66F03220AE7CD56495711592 /* WAIWOTests */,
+				9DEFF7F8E8DA8F2A9249336D /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		A4EAB9D903FDF10163ECB53C /* WAIWO */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 426893D467CD6300E891DE82 /* Build configuration list for PBXNativeTarget "WAIWO" */;
+			buildPhases = (
+				637BEF01F300FAAAAB84C817 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = WAIWO;
+			packageProductDependencies = (
+			);
+			productName = WAIWO;
+			productReference = B439AC7A8F8C678B3F66427F /* WAIWO.app */;
+			productType = "com.apple.product-type.application";
+		};
+		BC28423A3C769A17FBBD8299 /* WAIWOTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1155C71F1DB85420E5AE1CA2 /* Build configuration list for PBXNativeTarget "WAIWOTests" */;
+			buildPhases = (
+				70D9F64FE762FEA8B4CF426B /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				A901A4F8F3FA8CA888011B56 /* PBXTargetDependency */,
+			);
+			name = WAIWOTests;
+			packageProductDependencies = (
+			);
+			productName = WAIWOTests;
+			productReference = BC0E03B01FBC46811D126E3D /* WAIWOTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		A9AB862A0A4E120656ACA804 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1600;
+				TargetAttributes = {
+				};
+			};
+			buildConfigurationList = 577DDD2A1D05C6F8C2B94187 /* Build configuration list for PBXProject "WAIWO" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = F5610D2B9298EDACE0A027EB;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 9DEFF7F8E8DA8F2A9249336D /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				A4EAB9D903FDF10163ECB53C /* WAIWO */,
+				BC28423A3C769A17FBBD8299 /* WAIWOTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		637BEF01F300FAAAAB84C817 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5E358DB7F38CC4DBAA5546FE /* WAIWOApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		70D9F64FE762FEA8B4CF426B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D9EE7B976D6F8A0A27B9BDE6 /* WAIWOTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		A901A4F8F3FA8CA888011B56 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A4EAB9D903FDF10163ECB53C /* WAIWO */;
+			targetProxy = 2CC8851BE89F583131060243 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		01157CCD4471DD4576B65D84 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.waiwo.WAIWOTests;
+				SDKROOT = macosx;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/WAIWO.app/Contents/MacOS/WAIWO";
+			};
+			name = Release;
+		};
+		3790750C2372FCC03541E2BA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = WAIWO/WAIWO.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				INFOPLIST_FILE = WAIWO/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.waiwo.WAIWO;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		5D1DF0A6D04299D6D7C30255 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+		881A1C36BCCBBFBA964C3996 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
+		9B9D0E1B3BFB5976B2E41C0E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.waiwo.WAIWOTests;
+				SDKROOT = macosx;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/WAIWO.app/Contents/MacOS/WAIWO";
+			};
+			name = Debug;
+		};
+		B4F0D27CA8CD859FB5CC2F23 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = WAIWO/WAIWO.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				INFOPLIST_FILE = WAIWO/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.waiwo.WAIWO;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		1155C71F1DB85420E5AE1CA2 /* Build configuration list for PBXNativeTarget "WAIWOTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9B9D0E1B3BFB5976B2E41C0E /* Debug */,
+				01157CCD4471DD4576B65D84 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		426893D467CD6300E891DE82 /* Build configuration list for PBXNativeTarget "WAIWO" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3790750C2372FCC03541E2BA /* Debug */,
+				B4F0D27CA8CD859FB5CC2F23 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		577DDD2A1D05C6F8C2B94187 /* Build configuration list for PBXProject "WAIWO" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				5D1DF0A6D04299D6D7C30255 /* Debug */,
+				881A1C36BCCBBFBA964C3996 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = A9AB862A0A4E120656ACA804 /* Project object */;
+}
