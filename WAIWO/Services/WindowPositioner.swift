@@ -1,9 +1,29 @@
 import AppKit
 import Foundation
 
+enum Corner: CaseIterable {
+    case topLeft, topRight, bottomLeft, bottomRight
+}
+
 enum PositionerLogic {
     private static let cursorRepulsionThreshold: CGFloat = 150
-    private static let gridStep: CGFloat = 100
+    private static let edgeInsetFraction: CGFloat = 0.10
+
+    /// Pick the best corner on the given screen, avoiding the focused window and cursor.
+    static func bestCorner(
+        screenBounds: CGRect,
+        overlaySize: CGSize,
+        focusedWindowFrame: CGRect?,
+        cursorPosition: CGPoint
+    ) -> (corner: Corner, origin: CGPoint) {
+        let candidates = Corner.allCases.map { corner in
+            let origin = originForCorner(corner, screenBounds: screenBounds, overlaySize: overlaySize)
+            let score = scoreCorner(origin: origin, overlaySize: overlaySize, focusedWindowFrame: focusedWindowFrame, cursorPosition: cursorPosition)
+            return (corner, origin, score)
+        }
+        let best = candidates.max(by: { $0.2 < $1.2 })!
+        return (best.0, best.1)
+    }
 
     static func bestPosition(
         screenBounds: CGRect,
@@ -11,78 +31,51 @@ enum PositionerLogic {
         focusedWindowFrame: CGRect?,
         cursorPosition: CGPoint
     ) -> CGPoint {
-        var candidates: [(CGPoint, CGFloat)] = []
-
-        let minX = screenBounds.minX
-        let maxX = screenBounds.maxX - overlaySize.width
-        let minY = screenBounds.minY
-        let maxY = screenBounds.maxY - overlaySize.height
-
-        guard maxX >= minX, maxY >= minY else {
-            return CGPoint(x: screenBounds.minX, y: screenBounds.minY)
-        }
-
-        var x = minX
-        while x <= maxX {
-            var y = minY
-            while y <= maxY {
-                let point = CGPoint(x: x, y: y)
-                let score = scorePosition(
-                    point: point,
-                    overlaySize: overlaySize,
-                    focusedWindowFrame: focusedWindowFrame,
-                    cursorPosition: cursorPosition
-                )
-                candidates.append((point, score))
-                y += gridStep
-            }
-            x += gridStep
-        }
-
-        let corners: [CGPoint] = [
-            CGPoint(x: minX, y: minY),
-            CGPoint(x: maxX, y: minY),
-            CGPoint(x: minX, y: maxY),
-            CGPoint(x: maxX, y: maxY),
-        ]
-        for corner in corners {
-            let score = scorePosition(
-                point: corner,
-                overlaySize: overlaySize,
-                focusedWindowFrame: focusedWindowFrame,
-                cursorPosition: cursorPosition
-            )
-            candidates.append((corner, score))
-        }
-
-        return candidates.max(by: { $0.1 < $1.1 })?.0
-            ?? CGPoint(x: minX, y: minY)
+        bestCorner(screenBounds: screenBounds, overlaySize: overlaySize, focusedWindowFrame: focusedWindowFrame, cursorPosition: cursorPosition).origin
     }
 
-    private static func scorePosition(
-        point: CGPoint,
+    static func originForCorner(_ corner: Corner, screenBounds: CGRect, overlaySize: CGSize) -> CGPoint {
+        let padX = screenBounds.width * edgeInsetFraction
+        let padY = screenBounds.height * edgeInsetFraction
+        switch corner {
+        case .topLeft:
+            return CGPoint(x: screenBounds.minX + padX, y: screenBounds.maxY - overlaySize.height - padY)
+        case .topRight:
+            return CGPoint(x: screenBounds.maxX - overlaySize.width - padX, y: screenBounds.maxY - overlaySize.height - padY)
+        case .bottomLeft:
+            return CGPoint(x: screenBounds.minX + padX, y: screenBounds.minY + padY)
+        case .bottomRight:
+            return CGPoint(x: screenBounds.maxX - overlaySize.width - padX, y: screenBounds.minY + padY)
+        }
+    }
+
+    private static func scoreCorner(
+        origin: CGPoint,
         overlaySize: CGSize,
         focusedWindowFrame: CGRect?,
         cursorPosition: CGPoint
     ) -> CGFloat {
         let overlayCenter = CGPoint(
-            x: point.x + overlaySize.width / 2,
-            y: point.y + overlaySize.height / 2
+            x: origin.x + overlaySize.width / 2,
+            y: origin.y + overlaySize.height / 2
         )
 
         var score: CGFloat = 0
 
+        // Distance from focused window (higher is better)
         if let fwf = focusedWindowFrame {
             let fwCenter = CGPoint(x: fwf.midX, y: fwf.midY)
             let dist = hypot(overlayCenter.x - fwCenter.x, overlayCenter.y - fwCenter.y)
             score += dist * 2.0
 
-            let overlayRect = CGRect(origin: point, size: overlaySize)
+            // Big penalty for overlapping
+            let overlayRect = CGRect(origin: origin, size: overlaySize)
             if overlayRect.intersects(fwf) {
                 score -= 5000
             }
         }
 
+        // Distance from cursor (higher is better)
         let cursorDist = hypot(overlayCenter.x - cursorPosition.x, overlayCenter.y - cursorPosition.y)
         score += cursorDist
 
@@ -94,6 +87,7 @@ enum PositionerLogic {
     }
 }
 
+@MainActor
 final class WindowPositioner {
     private let panelController: OverlayPanelController
     private var timer: Timer?
@@ -101,8 +95,11 @@ final class WindowPositioner {
     private var workspaceObserver: Any?
     private var currentCursorPosition: CGPoint = .zero
     private var focusedWindowFrame: CGRect?
-    private var focusedWindowScreen: NSScreen?
+    private var focusedScreenNumber: UInt32?
+    private var currentCorner: Corner?
+    private var currentScreenNumber: UInt32?
     private var isPaused: Bool = false
+    private var isTransitioning: Bool = false
 
     init(panelController: OverlayPanelController) {
         self.panelController = panelController
@@ -118,17 +115,24 @@ final class WindowPositioner {
             forName: NSWorkspace.didActivateApplicationNotification,
             object: nil,
             queue: .main
-        ) { [weak self] notification in
-            self?.handleAppActivation(notification)
+        ) { [weak self] notif in
+            let app = notif.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication
+            MainActor.assumeIsolated {
+                self?.handleAppActivation(app: app)
+            }
         }
 
-        timer = Timer.scheduledTimer(withTimeInterval: 1.0 / 12.0, repeats: true) { [weak self] _ in
+        // Check less frequently — corners don't need 12Hz
+        timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
             self?.reposition()
         }
 
         if !AccessibilityHelper.hasPermission {
             AccessibilityHelper.requestPermission()
         }
+
+        // Initial position
+        reposition()
     }
 
     func stop() {
@@ -147,52 +151,90 @@ final class WindowPositioner {
     func pause() { isPaused = true }
     func resume() { isPaused = false }
 
-    private func handleAppActivation(_ notification: Notification) {
-        guard let app = notification.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication else { return }
-        guard app.bundleIdentifier != Bundle.main.bundleIdentifier else { return }
+    private func screenNumber(for screen: NSScreen) -> UInt32? {
+        screen.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? UInt32
+    }
+
+    private func handleAppActivation(app: NSRunningApplication?) {
+        guard let app, app.bundleIdentifier != Bundle.main.bundleIdentifier else { return }
 
         focusedWindowFrame = AccessibilityHelper.focusedWindowFrame(for: app)
 
         if let frame = focusedWindowFrame {
-            focusedWindowScreen = NSScreen.screens.first { screen in
-                screen.frame.contains(CGPoint(x: frame.midX, y: frame.midY))
+            if let screen = NSScreen.screens.first(where: { $0.frame.contains(CGPoint(x: frame.midX, y: frame.midY)) }) {
+                focusedScreenNumber = screenNumber(for: screen)
+            }
+        } else {
+            // Fallback: use cursor position to infer which screen the user is working on
+            let mouseScreen = NSScreen.screens.first(where: { $0.frame.contains(NSEvent.mouseLocation) })
+            if let mouseScreen {
+                focusedScreenNumber = screenNumber(for: mouseScreen)
             }
         }
+
+        // Reposition immediately on app switch
+        reposition()
+    }
+
+    /// Determine which screen the user is currently working on, using cursor position.
+    private func activeScreenNumber() -> UInt32? {
+        let cursor = NSEvent.mouseLocation
+        if let screen = NSScreen.screens.first(where: { $0.frame.contains(cursor) }) {
+            return screenNumber(for: screen)
+        }
+        return nil
     }
 
     private func reposition() {
-        guard !isPaused, panelController.isVisible else { return }
+        guard !isPaused, !isTransitioning, panelController.isVisible else { return }
 
         let screens = NSScreen.screens
         guard !screens.isEmpty else { return }
 
+        // Use cursor position to determine which screen the user is on
+        let userScreenNum = activeScreenNumber()
+
+        // Pick target screen: prefer one the user isn't on
         let targetScreen: NSScreen
-        if screens.count > 1, let fwScreen = focusedWindowScreen {
-            targetScreen = screens.first { $0 != fwScreen } ?? screens[0]
+        if screens.count > 1, let usn = userScreenNum {
+            targetScreen = screens.first(where: { screenNumber(for: $0) != usn }) ?? screens[0]
         } else {
             targetScreen = screens[0]
         }
 
+        let targetScreenNum = screenNumber(for: targetScreen)
+        let isOnUserScreen = targetScreenNum == userScreenNum
+
         let overlaySize = panelController.window.frame.size
-        let bestPoint = PositionerLogic.bestPosition(
+        let result = PositionerLogic.bestCorner(
             screenBounds: targetScreen.visibleFrame,
             overlaySize: overlaySize,
-            focusedWindowFrame: (targetScreen == focusedWindowScreen) ? focusedWindowFrame : nil,
+            focusedWindowFrame: isOnUserScreen ? focusedWindowFrame : nil,
             cursorPosition: currentCursorPosition
         )
 
-        let targetFrame = NSRect(origin: bestPoint, size: overlaySize)
-        let currentFrame = panelController.window.frame
+        // Only move if corner or screen changed
+        if result.corner == currentCorner && targetScreenNum == currentScreenNumber {
+            return
+        }
 
-        let lerp: CGFloat = 0.15
-        let newX = currentFrame.origin.x + (targetFrame.origin.x - currentFrame.origin.x) * lerp
-        let newY = currentFrame.origin.y + (targetFrame.origin.y - currentFrame.origin.y) * lerp
-        let smoothFrame = NSRect(origin: CGPoint(x: newX, y: newY), size: overlaySize)
+        let targetFrame = NSRect(origin: result.origin, size: overlaySize)
 
-        panelController.setFrame(smoothFrame, animate: false)
+        if currentCorner == nil {
+            // First positioning — just place it
+            panelController.setFrame(targetFrame, animate: false)
+        } else {
+            // Fade out, move, fade in
+            isTransitioning = true
+            panelController.fadeToFrame(targetFrame)
+            // Allow next transition after animation completes
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) { [weak self] in
+                self?.isTransitioning = false
+            }
+        }
+
+        currentCorner = result.corner
+        currentScreenNumber = targetScreenNum
     }
 
-    deinit {
-        stop()
-    }
 }

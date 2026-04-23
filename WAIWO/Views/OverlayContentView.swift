@@ -28,7 +28,7 @@ struct OverlayContentView: View {
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
-        .frame(minWidth: 200, maxWidth: 300, alignment: .leading)
+        .frame(minWidth: 300, maxWidth: 450, alignment: .leading)
         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
     }
 }

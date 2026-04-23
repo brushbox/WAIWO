@@ -5,9 +5,12 @@ import Observation
 final class NoteWatcher {
     private let directoryPath: String
     private let todoState: TodoState
-    private var fileDescriptor: Int32 = -1
-    private var dispatchSource: DispatchSourceFileSystemObject?
+    private var dirFileDescriptor: Int32 = -1
+    private var noteFileDescriptor: Int32 = -1
+    private var dirSource: DispatchSourceFileSystemObject?
+    private var noteSource: DispatchSourceFileSystemObject?
     private var debounceWorkItem: DispatchWorkItem?
+    private var watchedNotePath: String?
 
     init(directoryPath: String, todoState: TodoState) {
         self.directoryPath = directoryPath
@@ -16,25 +19,26 @@ final class NoteWatcher {
 
     func start() {
         scan()
-        startWatching()
+        startWatchingDirectory()
     }
 
     func stop() {
-        dispatchSource?.cancel()
-        dispatchSource = nil
-        if fileDescriptor != -1 {
-            close(fileDescriptor)
-            fileDescriptor = -1
+        stopWatchingNote()
+        dirSource?.cancel()
+        dirSource = nil
+        if dirFileDescriptor != -1 {
+            close(dirFileDescriptor)
+            dirFileDescriptor = -1
         }
     }
 
-    private func startWatching() {
+    private func startWatchingDirectory() {
         let fd = open(directoryPath, O_EVTONLY)
         guard fd != -1 else {
             print("NoteWatcher: failed to open directory for monitoring")
             return
         }
-        fileDescriptor = fd
+        dirFileDescriptor = fd
 
         let source = DispatchSource.makeFileSystemObjectSource(
             fileDescriptor: fd,
@@ -44,14 +48,47 @@ final class NoteWatcher {
         source.setEventHandler { [weak self] in
             self?.scheduleScan()
         }
-        source.setCancelHandler { [weak self] in
-            if let fd = self?.fileDescriptor, fd != -1 {
-                close(fd)
-                self?.fileDescriptor = -1
-            }
+        source.setCancelHandler {
+            close(fd)
         }
         source.resume()
-        dispatchSource = source
+        dirSource = source
+    }
+
+    private func startWatchingNote(at path: String) {
+        // Don't re-watch the same file
+        if watchedNotePath == path { return }
+        stopWatchingNote()
+
+        let fd = open(path, O_EVTONLY)
+        guard fd != -1 else {
+            print("NoteWatcher: failed to open note file for monitoring: \(path)")
+            return
+        }
+        noteFileDescriptor = fd
+        watchedNotePath = path
+
+        let source = DispatchSource.makeFileSystemObjectSource(
+            fileDescriptor: fd,
+            eventMask: [.write, .extend, .attrib],
+            queue: .main
+        )
+        source.setEventHandler { [weak self] in
+            print("NoteWatcher: note file changed, re-scanning")
+            self?.scheduleScan()
+        }
+        source.setCancelHandler {
+            close(fd)
+        }
+        source.resume()
+        noteSource = source
+    }
+
+    private func stopWatchingNote() {
+        noteSource?.cancel()
+        noteSource = nil
+        noteFileDescriptor = -1
+        watchedNotePath = nil
     }
 
     private func scheduleScan() {
@@ -66,6 +103,7 @@ final class NoteWatcher {
     private func scan() {
         let fileManager = FileManager.default
         guard let files = try? fileManager.contentsOfDirectory(atPath: directoryPath) else {
+            print("NoteWatcher: failed to list directory contents")
             todoState.displayState = .noNotesFound
             todoState.isStale = false
             todoState.noteDate = nil
@@ -74,6 +112,7 @@ final class NoteWatcher {
 
         let today = Date()
         guard let result = NoteFinder.bestNote(from: files, today: today) else {
+            print("NoteWatcher: no matching note found")
             todoState.displayState = .noNotesFound
             todoState.isStale = false
             todoState.noteDate = nil
@@ -81,7 +120,12 @@ final class NoteWatcher {
         }
 
         let filePath = (directoryPath as NSString).appendingPathComponent(result.filename)
+
+        // Watch this specific file for content changes
+        startWatchingNote(at: filePath)
+
         guard let content = try? String(contentsOfFile: filePath, encoding: .utf8) else {
+            print("NoteWatcher: failed to read file content")
             todoState.displayState = .noNotesFound
             todoState.isStale = false
             todoState.noteDate = nil
@@ -92,8 +136,10 @@ final class NoteWatcher {
         todoState.noteDate = result.date
 
         if let todo = NoteParser.firstUncheckedTodo(from: content) {
+            print("NoteWatcher: found todo: \(todo)")
             todoState.displayState = .activeTodo(text: todo)
         } else {
+            print("NoteWatcher: all done")
             todoState.displayState = .allDone
         }
     }

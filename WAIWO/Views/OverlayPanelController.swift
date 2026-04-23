@@ -12,7 +12,7 @@ final class OverlayPanelController {
 
     init(todoState: TodoState) {
         self.todoState = todoState
-        self.panel = OverlayPanel(contentRect: NSRect(x: 100, y: 100, width: 300, height: 60))
+        self.panel = OverlayPanel(contentRect: NSRect(x: 100, y: 100, width: 450, height: 60))
         setupContent()
     }
 
@@ -38,14 +38,38 @@ final class OverlayPanelController {
     }
 
     func show() {
+        panel.alphaValue = 0
         panel.orderFrontRegardless()
+        NSAnimationContext.runAnimationGroup { ctx in
+            ctx.duration = 0.3
+            panel.animator().alphaValue = 1.0
+        }
     }
 
     func hide() {
-        panel.orderOut(nil)
+        NSAnimationContext.runAnimationGroup({ ctx in
+            ctx.duration = 0.3
+            panel.animator().alphaValue = 0
+        }, completionHandler: { [weak self] in
+            self?.panel.orderOut(nil)
+        })
     }
 
     func setFrame(_ frame: NSRect, animate: Bool) {
         panel.setFrame(frame, display: true, animate: animate)
+    }
+
+    /// Fade out, move to new position, fade in
+    func fadeToFrame(_ frame: NSRect) {
+        NSAnimationContext.runAnimationGroup({ ctx in
+            ctx.duration = 0.2
+            panel.animator().alphaValue = 0
+        }, completionHandler: { [weak self] in
+            self?.panel.setFrame(frame, display: true, animate: false)
+            NSAnimationContext.runAnimationGroup { ctx in
+                ctx.duration = 0.3
+                self?.panel.animator().alphaValue = 1.0
+            }
+        })
     }
 }

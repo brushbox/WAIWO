@@ -1,7 +1,9 @@
 import SwiftUI
 import ServiceManagement
+import Observation
 
 @MainActor
+@Observable
 final class AppServices {
     static let shared = AppServices()
 
@@ -18,6 +20,7 @@ final class AppServices {
     ).appendingPathComponent(
         "Library/Mobile Documents/iCloud~md~obsidian/Documents/Pete/Areas/Daily Notes"
     )
+//    '/Users/petersumskas/Library/Mobile Documents/iCloud~md~obsidian/Documents/Pete/Areas/Daily Notes/2026-04-23.md'
 
     private init() {}
 
@@ -50,8 +53,9 @@ final class AppServices {
             self?.toggleVisibility()
         }
 
-        controller.show()
         startObservingTodoState()
+        controller.show()
+        controller.updateContent()
     }
 
     private func startObservingTodoState() {
