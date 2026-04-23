@@ -10,6 +10,8 @@ enum DisplayState: Equatable {
 @Observable
 final class TodoState {
     var displayState: DisplayState = .noNotesFound
+    var upcomingTodos: [String] = []  // 2nd and 3rd TODOs
+    var currentLinks: [TodoLink] = []  // Links in the current TODO
     var isStale: Bool = false
     var noteDate: Date? = nil
 

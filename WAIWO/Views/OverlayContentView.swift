@@ -2,19 +2,34 @@ import SwiftUI
 
 struct OverlayContentView: View {
     let displayState: DisplayState
+    let upcomingTodos: [String]
+    let hasLinks: Bool
     let staleDateText: String?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             switch displayState {
             case .activeTodo(let text):
-                Text(text)
-                    .font(.system(size: 16, weight: .medium))
-                    .foregroundStyle(.primary)
+                HStack(spacing: 4) {
+                    Text(text)
+                        .font(.system(size: 16, weight: .medium))
+                        .foregroundStyle(.primary)
+                    if hasLinks {
+                        Image(systemName: "link")
+                            .font(.system(size: 11))
+                            .foregroundStyle(.blue.opacity(0.7))
+                    }
+                }
                 if let staleDateText {
                     Text(staleDateText)
                         .font(.system(size: 12, weight: .regular))
                         .foregroundStyle(.orange)
+                }
+                ForEach(Array(upcomingTodos.enumerated()), id: \.offset) { index, todo in
+                    Text(todo)
+                        .font(.system(size: 14, weight: .regular))
+                        .foregroundStyle(.primary.opacity(index == 0 ? 0.5 : 0.3))
+                        .lineLimit(1)
                 }
             case .allDone:
                 Text("All done!")

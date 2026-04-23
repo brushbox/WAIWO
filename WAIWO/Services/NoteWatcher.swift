@@ -135,12 +135,18 @@ final class NoteWatcher {
         todoState.isStale = result.isStale
         todoState.noteDate = result.date
 
-        if let todo = NoteParser.firstUncheckedTodo(from: content) {
-            print("NoteWatcher: found todo: \(todo)")
-            todoState.displayState = .activeTodo(text: todo)
+        let todos = NoteParser.uncheckedTodos(from: content, limit: 3)
+        if let first = todos.first {
+            let displayText = NoteParser.displayText(from: first)
+            todoState.displayState = .activeTodo(text: displayText)
+            todoState.currentLinks = NoteParser.extractLinks(from: first)
+            todoState.upcomingTodos = Array(todos.dropFirst()).map { NoteParser.displayText(from: $0) }
+            print("NoteWatcher: found todo: \(displayText), upcoming: \(todoState.upcomingTodos.count), links: \(todoState.currentLinks.count)")
         } else {
             print("NoteWatcher: all done")
             todoState.displayState = .allDone
+            todoState.upcomingTodos = []
+            todoState.currentLinks = []
         }
     }
 

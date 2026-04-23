@@ -19,6 +19,8 @@ final class OverlayPanelController {
     private func setupContent() {
         let content = OverlayContentView(
             displayState: todoState.displayState,
+            upcomingTodos: todoState.upcomingTodos,
+            hasLinks: !todoState.currentLinks.isEmpty,
             staleDateText: todoState.staleDateText
         )
         let hostingView = NSHostingView(rootView: content)
@@ -31,6 +33,8 @@ final class OverlayPanelController {
     func updateContent() {
         let content = OverlayContentView(
             displayState: todoState.displayState,
+            upcomingTodos: todoState.upcomingTodos,
+            hasLinks: !todoState.currentLinks.isEmpty,
             staleDateText: todoState.staleDateText
         )
         hostingView?.rootView = content

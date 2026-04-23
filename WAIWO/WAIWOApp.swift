@@ -62,6 +62,8 @@ final class AppServices {
         withObservationTracking {
             _ = todoState.displayState
             _ = todoState.isStale
+            _ = todoState.upcomingTodos
+            _ = todoState.currentLinks
         } onChange: { [weak self] in
             DispatchQueue.main.async {
                 self?.panelController?.updateContent()
@@ -135,6 +137,18 @@ struct WAIWOApp: App {
             case .noNotesFound:
                 Text("No daily notes found")
                     .foregroundStyle(.secondary)
+            }
+
+            if !todoState.currentLinks.isEmpty {
+                Divider()
+                ForEach(todoState.currentLinks, id: \.url) { link in
+                    Button {
+                        NSWorkspace.shared.open(link.url)
+                    } label: {
+                        let host = link.url.host ?? link.url.absoluteString
+                        Text("\(link.text) — \(host)")
+                    }
+                }
             }
 
             Divider()
