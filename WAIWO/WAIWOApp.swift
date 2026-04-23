@@ -51,6 +51,19 @@ final class AppServices {
         }
 
         controller.show()
+        startObservingTodoState()
+    }
+
+    private func startObservingTodoState() {
+        withObservationTracking {
+            _ = todoState.displayState
+            _ = todoState.isStale
+        } onChange: { [weak self] in
+            DispatchQueue.main.async {
+                self?.panelController?.updateContent()
+                self?.startObservingTodoState()
+            }
+        }
     }
 
     func toggleVisibility() {
@@ -133,12 +146,6 @@ struct WAIWOApp: App {
             }
         }
         .menuBarExtraStyle(.menu)
-        .onChange(of: todoState.displayState) { _, _ in
-            services.panelController?.updateContent()
-        }
-        .onChange(of: todoState.isStale) { _, _ in
-            services.panelController?.updateContent()
-        }
     }
 
     private func setLaunchAtLogin(_ enabled: Bool) {
