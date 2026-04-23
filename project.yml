@@ -32,3 +32,4 @@ targets:
       - target: WAIWO
     settings:
       PRODUCT_BUNDLE_IDENTIFIER: com.waiwo.WAIWOTests
+      GENERATE_INFOPLIST_FILE: true

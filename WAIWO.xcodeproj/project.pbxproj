@@ -7,7 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		19B73F04188CC3F464994AD7 /* NoteParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2BF6EEDD66C48765AFF84ED /* NoteParser.swift */; };
 		5E358DB7F38CC4DBAA5546FE /* WAIWOApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9C6E67B74C1708D7888EAA0 /* WAIWOApp.swift */; };
+		7178D2284CE5D5AF6AEC3339 /* TodoState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3037E7E8EAC61C27FA1D9F42 /* TodoState.swift */; };
+		A3067CF9AC713D9F09BA602E /* NoteParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B91E0E6C1A834883C85C418 /* NoteParserTests.swift */; };
 		D9EE7B976D6F8A0A27B9BDE6 /* WAIWOTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDF9797B701D63DE391D50AD /* WAIWOTests.swift */; };
 /* End PBXBuildFile section */
 
@@ -22,12 +25,15 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		2B91E0E6C1A834883C85C418 /* NoteParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteParserTests.swift; sourceTree = "<group>"; };
+		3037E7E8EAC61C27FA1D9F42 /* TodoState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoState.swift; sourceTree = "<group>"; };
 		66B764F098C8C4C209422F93 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		B439AC7A8F8C678B3F66427F /* WAIWO.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WAIWO.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B9C6E67B74C1708D7888EAA0 /* WAIWOApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WAIWOApp.swift; sourceTree = "<group>"; };
 		BC0E03B01FBC46811D126E3D /* WAIWOTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = WAIWOTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		DDF9797B701D63DE391D50AD /* WAIWOTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WAIWOTests.swift; sourceTree = "<group>"; };
 		E7C90BF1306D8BD2AF80ACA7 /* WAIWO.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = WAIWO.entitlements; sourceTree = "<group>"; };
+		F2BF6EEDD66C48765AFF84ED /* NoteParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteParser.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -37,13 +43,24 @@
 				66B764F098C8C4C209422F93 /* Info.plist */,
 				E7C90BF1306D8BD2AF80ACA7 /* WAIWO.entitlements */,
 				B9C6E67B74C1708D7888EAA0 /* WAIWOApp.swift */,
+				DA07578AB7BD40BDA6557BD0 /* Models */,
+				59E8FF4A7CD6570129642EDC /* Services */,
 			);
 			path = WAIWO;
+			sourceTree = "<group>";
+		};
+		59E8FF4A7CD6570129642EDC /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				F2BF6EEDD66C48765AFF84ED /* NoteParser.swift */,
+			);
+			path = Services;
 			sourceTree = "<group>";
 		};
 		66F03220AE7CD56495711592 /* WAIWOTests */ = {
 			isa = PBXGroup;
 			children = (
+				2B91E0E6C1A834883C85C418 /* NoteParserTests.swift */,
 				DDF9797B701D63DE391D50AD /* WAIWOTests.swift */,
 			);
 			path = WAIWOTests;
@@ -56,6 +73,14 @@
 				BC0E03B01FBC46811D126E3D /* WAIWOTests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		DA07578AB7BD40BDA6557BD0 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				3037E7E8EAC61C27FA1D9F42 /* TodoState.swift */,
+			);
+			path = Models;
 			sourceTree = "<group>";
 		};
 		F5610D2B9298EDACE0A027EB = {
@@ -141,6 +166,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				19B73F04188CC3F464994AD7 /* NoteParser.swift in Sources */,
+				7178D2284CE5D5AF6AEC3339 /* TodoState.swift in Sources */,
 				5E358DB7F38CC4DBAA5546FE /* WAIWOApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -149,6 +176,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A3067CF9AC713D9F09BA602E /* NoteParserTests.swift in Sources */,
 				D9EE7B976D6F8A0A27B9BDE6 /* WAIWOTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -169,6 +197,7 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -321,6 +350,7 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
