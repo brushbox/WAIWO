@@ -36,7 +36,7 @@ final class AppServices {
         positioner.start()
         windowPositioner = positioner
 
-        let focus = FocusMonitor()
+        let focus = FocusMonitor.shared
         focus.onFocusModeChanged = { [weak self] isActive in
             guard let self else { return }
             if isActive {
@@ -46,7 +46,6 @@ final class AppServices {
                 if self.wasVisibleBeforeFocus { self.showOverlay() }
             }
         }
-        focus.start()
         focusMonitor = focus
 
         HotkeyManager.shared.register { [weak self] in
