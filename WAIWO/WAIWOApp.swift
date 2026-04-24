@@ -1,6 +1,6 @@
-import SwiftUI
-import ServiceManagement
 import Observation
+import ServiceManagement
+import SwiftUI
 
 @MainActor
 @Observable
@@ -15,12 +15,9 @@ final class AppServices {
     var wasVisibleBeforeFocus = true
     var isVisible = true
 
-    private let dailyNotesPath = (
-        NSHomeDirectory() as NSString
-    ).appendingPathComponent(
+    private let dailyNotesPath = (NSHomeDirectory() as NSString).appendingPathComponent(
         "Library/Mobile Documents/iCloud~md~obsidian/Documents/Pete/Areas/Daily Notes"
     )
-//    '/Users/petersumskas/Library/Mobile Documents/iCloud~md~obsidian/Documents/Pete/Areas/Daily Notes/2026-04-23.md'
 
     private init() {}
 
