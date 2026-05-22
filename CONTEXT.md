@@ -2,6 +2,18 @@
 
 A macOS menu-bar app that surfaces the top unchecked TODO from an Obsidian daily note in an always-on-top floating overlay.
 
+## Features
+
+- **Overlay** — floating window shows top unchecked TODO from latest daily note. Auto-updates on file change. Stale-date badge when note isn't today's.
+- **Toggle overlay** — ⌥⌘T
+- **Add TODO** — ⌥⌘N. Prepends `- [ ] text` to latest daily note.
+- **Add Journal Entry** — ⌥⌘⇧J. Appends timestamped entry to today's journal file. Creates file if missing.
+- **Mark Top TODO as Done** — ⌥⌘D. Rewrites first `- [ ]` to `- [x]` in latest daily note. Silent no-op if nothing to check.
+- **Start at Login** — toggle in menu bar.
+- **Focus Mode** — overlay auto-hides during system Focus sessions, restores on exit.
+
+All writes go directly to disk. `NoteWatcher` picks up filesystem changes automatically.
+
 ## Language
 
 **Daily Note**:
