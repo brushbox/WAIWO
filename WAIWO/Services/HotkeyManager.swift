@@ -8,6 +8,7 @@ final class HotkeyManager: @unchecked Sendable {
     static let keyT: UInt32 = UInt32(kVK_ANSI_T)
     static let keyN: UInt32 = UInt32(kVK_ANSI_N)
     static let keyJ: UInt32 = UInt32(kVK_ANSI_J)
+    static let keyD: UInt32 = UInt32(kVK_ANSI_D)
 
     // Modifier masks
     static let modOption: UInt32 = UInt32(optionKey)

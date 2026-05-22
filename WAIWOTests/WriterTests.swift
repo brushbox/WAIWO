@@ -81,6 +81,117 @@ struct NoteWriterTests {
     }
 }
 
+struct MarkTopTodoDoneTests {
+    private func makeDate(_ string: String) -> Date {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        formatter.timeZone = TimeZone.current
+        return formatter.date(from: string)!
+    }
+
+    @Test func marksFirstUncheckedTodo() throws {
+        let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString).path
+        try FileManager.default.createDirectory(atPath: tempDir, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(atPath: tempDir) }
+
+        try "- [ ] First task\n- [ ] Second task\n".write(toFile: "\(tempDir)/2026-04-23.md", atomically: true, encoding: .utf8)
+
+        let date = makeDate("2026-04-23")
+        let result = NoteWriter.markTopTodoDone(to: tempDir, today: date)
+        try result.get()
+
+        let content = try String(contentsOfFile: "\(tempDir)/2026-04-23.md", encoding: .utf8)
+        #expect(content == "- [x] First task\n- [ ] Second task\n")
+    }
+
+    @Test func marksOnStaleNoteWhenNoTodayNote() throws {
+        let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString).path
+        try FileManager.default.createDirectory(atPath: tempDir, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(atPath: tempDir) }
+
+        try "- [ ] Old task\n".write(toFile: "\(tempDir)/2026-04-21.md", atomically: true, encoding: .utf8)
+
+        let date = makeDate("2026-04-23")
+        let result = NoteWriter.markTopTodoDone(to: tempDir, today: date)
+        try result.get()
+
+        let content = try String(contentsOfFile: "\(tempDir)/2026-04-21.md", encoding: .utf8)
+        #expect(content == "- [x] Old task\n")
+    }
+
+    @Test func silentNoopWhenAllDone() throws {
+        let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString).path
+        try FileManager.default.createDirectory(atPath: tempDir, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(atPath: tempDir) }
+
+        try "- [x] Done task\n".write(toFile: "\(tempDir)/2026-04-23.md", atomically: true, encoding: .utf8)
+
+        let date = makeDate("2026-04-23")
+        let result = NoteWriter.markTopTodoDone(to: tempDir, today: date)
+        try result.get()
+
+        let content = try String(contentsOfFile: "\(tempDir)/2026-04-23.md", encoding: .utf8)
+        #expect(content == "- [x] Done task\n")
+    }
+
+    @Test func silentNoopWhenNoNotesExist() throws {
+        let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString).path
+        try FileManager.default.createDirectory(atPath: tempDir, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(atPath: tempDir) }
+
+        let date = makeDate("2026-04-23")
+        let result = NoteWriter.markTopTodoDone(to: tempDir, today: date)
+
+        if case .success = result {
+            Issue.record("Expected failure but got success")
+        }
+    }
+
+    @Test func silentNoopWhenNoUncheckedTodosInNonemptyFile() throws {
+        let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString).path
+        try FileManager.default.createDirectory(atPath: tempDir, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(atPath: tempDir) }
+
+        try "# Just a heading\nSome paragraph.\n".write(toFile: "\(tempDir)/2026-04-23.md", atomically: true, encoding: .utf8)
+
+        let date = makeDate("2026-04-23")
+        let result = NoteWriter.markTopTodoDone(to: tempDir, today: date)
+        try result.get()
+
+        let content = try String(contentsOfFile: "\(tempDir)/2026-04-23.md", encoding: .utf8)
+        #expect(content == "# Just a heading\nSome paragraph.\n")
+    }
+
+    @Test func marksOnlyFirstUnchecked() throws {
+        let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString).path
+        try FileManager.default.createDirectory(atPath: tempDir, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(atPath: tempDir) }
+
+        try "- [x] Already done\n- [ ] First unchecked\n- [ ] Second unchecked\n".write(toFile: "\(tempDir)/2026-04-23.md", atomically: true, encoding: .utf8)
+
+        let date = makeDate("2026-04-23")
+        let result = NoteWriter.markTopTodoDone(to: tempDir, today: date)
+        try result.get()
+
+        let content = try String(contentsOfFile: "\(tempDir)/2026-04-23.md", encoding: .utf8)
+        #expect(content == "- [x] Already done\n- [x] First unchecked\n- [ ] Second unchecked\n")
+    }
+
+    @Test func preservesContentAfterCheckbox() throws {
+        let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString).path
+        try FileManager.default.createDirectory(atPath: tempDir, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(atPath: tempDir) }
+
+        try "- [ ] Task with [link](https://example.com)\n".write(toFile: "\(tempDir)/2026-04-23.md", atomically: true, encoding: .utf8)
+
+        let date = makeDate("2026-04-23")
+        let result = NoteWriter.markTopTodoDone(to: tempDir, today: date)
+        try result.get()
+
+        let content = try String(contentsOfFile: "\(tempDir)/2026-04-23.md", encoding: .utf8)
+        #expect(content == "- [x] Task with [link](https://example.com)\n")
+    }
+}
 struct JournalWriterTests {
     private func makeDate(_ string: String) -> Date {
         let formatter = DateFormatter()

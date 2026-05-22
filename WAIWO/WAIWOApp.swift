@@ -25,6 +25,7 @@ final class AppServices {
     private var toggleHotkeyID: UInt32 = 0
     private var todoHotkeyID: UInt32 = 0
     private var journalHotkeyID: UInt32 = 0
+    private var markDoneHotkeyID: UInt32 = 0
 
     private init() {}
 
@@ -73,9 +74,13 @@ final class AppServices {
         journalHotkeyID = hotkey.register(keyCode: HotkeyManager.keyJ, modifiers: HotkeyManager.modOption | HotkeyManager.modCmd | HotkeyManager.modShift) { [weak self] in
             self?.presentInput(mode: .journal)
         }
+
+        markDoneHotkeyID = hotkey.register(keyCode: HotkeyManager.keyD, modifiers: HotkeyManager.modOption | HotkeyManager.modCmd) { [weak self] in
+            self?.markTopTodoDone()
+        }
     }
 
-    private func presentInput(mode: InputView.Mode) {
+    func presentInput(mode: InputView.Mode) {
         guard let controller = panelController else { return }
 
         if !isVisible {
@@ -152,6 +157,13 @@ final class AppServices {
         isVisible = false
     }
 
+    func markTopTodoDone() {
+        let result = NoteWriter.markTopTodoDone(to: dailyNotesPath)
+        if case .failure(let error) = result {
+            print("AppServices: failed to mark todo done: \(error)")
+        }
+    }
+
     func cleanup() {
         noteWatcher?.stop()
         windowPositioner?.stop()
@@ -185,6 +197,21 @@ struct WAIWOApp: App {
                 services.toggleVisibility()
             }
             .keyboardShortcut("t", modifiers: [.option, .command])
+
+            Button("Add TODO\u{2026}") {
+                services.presentInput(mode: .todo)
+            }
+            .keyboardShortcut("n", modifiers: [.option, .command])
+
+            Button("Add Journal Entry\u{2026}") {
+                services.presentInput(mode: .journal)
+            }
+            .keyboardShortcut("j", modifiers: [.option, .command, .shift])
+
+            Button("Mark Top TODO as Done") {
+                services.markTopTodoDone()
+            }
+            .keyboardShortcut("d", modifiers: [.option, .command])
 
             switch todoState.displayState {
             case .activeTodo(let text):

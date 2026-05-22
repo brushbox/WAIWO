@@ -36,4 +36,30 @@ enum NoteWriter {
 
         return .success(())
     }
+
+    static func markTopTodoDone(to directoryPath: String, today: Date = Date()) -> Result<Void, TodoWriteError> {
+        let fileManager = FileManager.default
+        guard let files = try? fileManager.contentsOfDirectory(atPath: directoryPath) else {
+            return .failure(.noNotesFound)
+        }
+
+        guard let result = NoteFinder.bestNote(from: files, today: today) else {
+            return .failure(.noNotesFound)
+        }
+
+        let filePath = (directoryPath as NSString).appendingPathComponent(result.filename)
+
+        do {
+            var content = try String(contentsOfFile: filePath, encoding: .utf8)
+            guard let range = content.range(of: "- [ ]") else {
+                return .success(())
+            }
+            content.replaceSubrange(range, with: "- [x]")
+            try content.write(toFile: filePath, atomically: true, encoding: .utf8)
+        } catch {
+            return .failure(.writeFailed(error))
+        }
+
+        return .success(())
+    }
 }
