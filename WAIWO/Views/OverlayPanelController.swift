@@ -1,10 +1,13 @@
 import AppKit
 import SwiftUI
 
+@MainActor
 final class OverlayPanelController {
     private let panel: OverlayPanel
     private let todoState: TodoState
     private var hostingView: NSHostingView<OverlayContentView>?
+    private var inputHostingView: NSHostingView<InputView>?
+    private var isInputMode = false
 
     var isVisible: Bool { panel.isVisible }
 
@@ -12,7 +15,7 @@ final class OverlayPanelController {
 
     init(todoState: TodoState) {
         self.todoState = todoState
-        self.panel = OverlayPanel(contentRect: NSRect(x: 100, y: 100, width: 450, height: 60))
+        self.panel = OverlayPanel(contentRect: NSRect(x: 100, y: 100, width: 400, height: 60))
         setupContent()
     }
 
@@ -24,8 +27,6 @@ final class OverlayPanelController {
             staleDateText: todoState.staleDateText
         )
         let hostingView = NSHostingView(rootView: content)
-        // Make the hosting view the content view directly so there's no
-        // intermediate NSView drawing a background behind the rounded corners
         panel.contentView = hostingView
         self.hostingView = hostingView
     }
@@ -41,6 +42,62 @@ final class OverlayPanelController {
         panel.invalidateShadow()
     }
 
+    func showInput(mode: InputView.Mode, onSubmit: @escaping (String) -> Void, onCancel: @escaping () -> Void) {
+        isInputMode = true
+
+        panel.onCancel = { [weak self] in
+            self?.dismissInput()
+            onCancel()
+        }
+
+        let input = InputView(
+            mode: mode,
+            onSubmit: { [weak self] text in
+                self?.dismissInput()
+                onSubmit(text)
+            },
+            onCancel: { [weak self] in
+                self?.dismissInput()
+                onCancel()
+            }
+        )
+        let hostingView = NSHostingView(rootView: input)
+        inputHostingView = hostingView
+        panel.contentView = hostingView
+
+        let inputHeight: CGFloat = mode == .todo ? 80 : 160
+        let newFrame = NSRect(
+            x: panel.frame.origin.x,
+            y: panel.frame.origin.y - (inputHeight - panel.frame.height),
+            width: 400,
+            height: inputHeight
+        )
+        panel.setFrame(newFrame, display: true, animate: true)
+        panel.isInputMode = true
+        panel.makeKey()
+        panel.invalidateShadow()
+    }
+
+    func dismissInput() {
+        guard isInputMode else { return }
+        isInputMode = false
+        panel.isInputMode = false
+        panel.onCancel = nil
+        panel.resignKey()
+        inputHostingView = nil
+        panel.contentView = hostingView
+
+        let displayHeight: CGFloat = 60
+        let newFrame = NSRect(
+            x: panel.frame.origin.x,
+            y: panel.frame.origin.y + (panel.frame.height - displayHeight),
+            width: 400,
+            height: displayHeight
+        )
+        panel.setFrame(newFrame, display: true, animate: true)
+        panel.invalidateShadow()
+    }
+
     func show() {
         panel.alphaValue = 0
         panel.orderFrontRegardless()
@@ -51,6 +108,9 @@ final class OverlayPanelController {
     }
 
     func hide() {
+        if isInputMode {
+            dismissInput()
+        }
         NSAnimationContext.runAnimationGroup({ ctx in
             ctx.duration = 0.3
             panel.animator().alphaValue = 0
@@ -60,11 +120,12 @@ final class OverlayPanelController {
     }
 
     func setFrame(_ frame: NSRect, animate: Bool) {
+        guard !isInputMode else { return }
         panel.setFrame(frame, display: true, animate: animate)
     }
 
-    /// Fade out, move to new position, fade in
     func fadeToFrame(_ frame: NSRect) {
+        guard !isInputMode else { return }
         NSAnimationContext.runAnimationGroup({ ctx in
             ctx.duration = 0.2
             panel.animator().alphaValue = 0

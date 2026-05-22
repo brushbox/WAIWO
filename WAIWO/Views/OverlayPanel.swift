@@ -1,6 +1,9 @@
 import AppKit
 
 final class OverlayPanel: NSPanel {
+    var isInputMode = false
+    var onCancel: (() -> Void)?
+
     init(contentRect: NSRect) {
         super.init(
             contentRect: contentRect,
@@ -18,6 +21,12 @@ final class OverlayPanel: NSPanel {
         hidesOnDeactivate = false
     }
 
-    override var canBecomeKey: Bool { false }
-    override var canBecomeMain: Bool { false }
+    override var canBecomeKey: Bool { isInputMode }
+    override var canBecomeMain: Bool { isInputMode }
+
+    override func cancelOperation(_ sender: Any?) {
+        if isInputMode {
+            onCancel?()
+        }
+    }
 }

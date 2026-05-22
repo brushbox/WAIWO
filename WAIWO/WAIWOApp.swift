@@ -18,6 +18,13 @@ final class AppServices {
     private let dailyNotesPath = (NSHomeDirectory() as NSString).appendingPathComponent(
         "Library/Mobile Documents/iCloud~md~obsidian/Documents/Pete/Areas/Daily Notes"
     )
+    private let journalPath = (NSHomeDirectory() as NSString).appendingPathComponent(
+        "Library/Mobile Documents/iCloud~md~obsidian/Documents/Pete/Areas/Daily Journal"
+    )
+
+    private var toggleHotkeyID: UInt32 = 0
+    private var todoHotkeyID: UInt32 = 0
+    private var journalHotkeyID: UInt32 = 0
 
     private init() {}
 
@@ -45,13 +52,66 @@ final class AppServices {
         }
         focusMonitor = focus
 
-        HotkeyManager.shared.register { [weak self] in
-            self?.toggleVisibility()
-        }
+        registerHotkeys(controller: controller)
 
         startObservingTodoState()
         controller.show()
         controller.updateContent()
+    }
+
+    private func registerHotkeys(controller: OverlayPanelController) {
+        let hotkey = HotkeyManager.shared
+
+        toggleHotkeyID = hotkey.register(keyCode: HotkeyManager.keyT, modifiers: HotkeyManager.modOption | HotkeyManager.modCmd) { [weak self] in
+            self?.toggleVisibility()
+        }
+
+        todoHotkeyID = hotkey.register(keyCode: HotkeyManager.keyN, modifiers: HotkeyManager.modOption | HotkeyManager.modCmd) { [weak self] in
+            self?.presentInput(mode: .todo)
+        }
+
+        journalHotkeyID = hotkey.register(keyCode: HotkeyManager.keyJ, modifiers: HotkeyManager.modOption | HotkeyManager.modCmd | HotkeyManager.modShift) { [weak self] in
+            self?.presentInput(mode: .journal)
+        }
+    }
+
+    private func presentInput(mode: InputView.Mode) {
+        guard let controller = panelController else { return }
+
+        if !isVisible {
+            controller.show()
+            isVisible = true
+        }
+
+        windowPositioner?.pause()
+
+        controller.showInput(
+            mode: mode,
+            onSubmit: { [weak self] text in
+                guard let self else { return }
+                self.handleInputSubmit(text: text, mode: mode)
+            },
+            onCancel: { [weak self] in
+                self?.windowPositioner?.resume()
+            }
+        )
+    }
+
+    private func handleInputSubmit(text: String, mode: InputView.Mode) {
+        defer { windowPositioner?.resume() }
+
+        switch mode {
+        case .todo:
+            let result = NoteWriter.write(todo: text, to: dailyNotesPath)
+            if case .failure(let error) = result {
+                print("AppServices: failed to write todo: \(error)")
+            }
+        case .journal:
+            let result = JournalWriter.write(entry: text, to: journalPath)
+            if case .failure(let error) = result {
+                print("AppServices: failed to write journal entry: \(error)")
+            }
+        }
     }
 
     private func startObservingTodoState() {
@@ -69,6 +129,10 @@ final class AppServices {
     }
 
     func toggleVisibility() {
+        guard let controller = panelController else { return }
+        if controller.window.isVisible && controller.window.isKeyWindow && controller.window.canBecomeKey {
+            controller.dismissInput()
+        }
         if isVisible {
             hideOverlay()
         } else {
@@ -92,7 +156,7 @@ final class AppServices {
         noteWatcher?.stop()
         windowPositioner?.stop()
         focusMonitor?.stop()
-        HotkeyManager.shared.unregister()
+        HotkeyManager.shared.unregisterAll()
     }
 }
 
@@ -124,7 +188,7 @@ struct WAIWOApp: App {
 
             switch todoState.displayState {
             case .activeTodo(let text):
-                let display = text.count > 40 ? String(text.prefix(40)) + "…" : text
+                let display = text.count > 40 ? String(text.prefix(40)) + "\u{2026}" : text
                 Text("Showing: \(display)")
                     .foregroundStyle(.secondary)
             case .allDone:
@@ -142,7 +206,7 @@ struct WAIWOApp: App {
                         NSWorkspace.shared.open(link.url)
                     } label: {
                         let host = link.url.host ?? link.url.absoluteString
-                        Text("\(link.text) — \(host)")
+                        Text("\(link.text) \u{2014} \(host)")
                     }
                 }
             }
