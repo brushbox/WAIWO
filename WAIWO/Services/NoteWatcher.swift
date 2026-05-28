@@ -11,6 +11,7 @@ final class NoteWatcher {
     private var noteSource: DispatchSourceFileSystemObject?
     private var debounceWorkItem: DispatchWorkItem?
     private var watchedNotePath: String?
+    private(set) var lastScanTime: Date?
 
     init(directoryPath: String, todoState: TodoState) {
         self.directoryPath = directoryPath
@@ -101,6 +102,8 @@ final class NoteWatcher {
     }
 
     private func scan() {
+        lastScanTime = Date()
+
         let fileManager = FileManager.default
         guard let files = try? fileManager.contentsOfDirectory(atPath: directoryPath) else {
             print("NoteWatcher: failed to list directory contents")
@@ -148,6 +151,26 @@ final class NoteWatcher {
             todoState.upcomingTodos = []
             todoState.currentLinks = []
         }
+    }
+
+    var debugInfo: String {
+        var lines: [String] = []
+        lines.append("Directory: \(directoryPath)")
+        if let path = watchedNotePath {
+            lines.append("Watched file: \(path)")
+        } else {
+            lines.append("Watched file: (none)")
+        }
+        lines.append("Directory watcher: \(dirSource != nil ? "active" : "inactive")")
+        lines.append("Note watcher: \(noteSource != nil ? "active" : "inactive")")
+        if let lastScan = lastScanTime {
+            let formatter = DateFormatter()
+            formatter.dateFormat = "HH:mm:ss.SSS"
+            lines.append("Last scan: \(formatter.string(from: lastScan))")
+        } else {
+            lines.append("Last scan: (never)")
+        }
+        return lines.joined(separator: "\n")
     }
 
     deinit {
