@@ -27,7 +27,9 @@ final class AppServices {
     private var journalHotkeyID: UInt32 = 0
     private var markDoneHotkeyID: UInt32 = 0
 
-    private init() {}
+    private init() {
+        HotkeyConfig.registerDefaults()
+    }
 
     func setup() {
         let controller = OverlayPanelController(todoState: todoState)
@@ -63,21 +65,31 @@ final class AppServices {
     private func registerHotkeys(controller: OverlayPanelController) {
         let hotkey = HotkeyManager.shared
 
-        toggleHotkeyID = hotkey.register(keyCode: HotkeyManager.keyT, modifiers: HotkeyManager.modOption | HotkeyManager.modCmd) { [weak self] in
+        let toggleSetting = HotkeyConfig.readRaw(for: .toggleOverlay)
+        toggleHotkeyID = hotkey.register(keyCode: toggleSetting.keyCode, modifiers: toggleSetting.modifiers) { [weak self] in
             self?.toggleVisibility()
         }
 
-        todoHotkeyID = hotkey.register(keyCode: HotkeyManager.keyN, modifiers: HotkeyManager.modOption | HotkeyManager.modCmd) { [weak self] in
+        let todoSetting = HotkeyConfig.readRaw(for: .newTodo)
+        todoHotkeyID = hotkey.register(keyCode: todoSetting.keyCode, modifiers: todoSetting.modifiers) { [weak self] in
             self?.presentInput(mode: .todo)
         }
 
-        journalHotkeyID = hotkey.register(keyCode: HotkeyManager.keyJ, modifiers: HotkeyManager.modOption | HotkeyManager.modCmd | HotkeyManager.modShift) { [weak self] in
+        let journalSetting = HotkeyConfig.readRaw(for: .newJournal)
+        journalHotkeyID = hotkey.register(keyCode: journalSetting.keyCode, modifiers: journalSetting.modifiers) { [weak self] in
             self?.presentInput(mode: .journal)
         }
 
-        markDoneHotkeyID = hotkey.register(keyCode: HotkeyManager.keyD, modifiers: HotkeyManager.modOption | HotkeyManager.modCmd) { [weak self] in
+        let markDoneSetting = HotkeyConfig.readRaw(for: .markDone)
+        markDoneHotkeyID = hotkey.register(keyCode: markDoneSetting.keyCode, modifiers: markDoneSetting.modifiers) { [weak self] in
             self?.markTopTodoDone()
         }
+    }
+
+    func reapplyHotkeys() {
+        guard let controller = panelController else { return }
+        HotkeyManager.shared.unregisterAll()
+        registerHotkeys(controller: controller)
     }
 
     func presentInput(mode: InputView.Mode) {
@@ -170,6 +182,18 @@ final class AppServices {
         focusMonitor?.stop()
         HotkeyManager.shared.unregisterAll()
     }
+
+    func showDebugInfo() {
+        guard let watcher = noteWatcher else { return }
+        let info = watcher.debugInfo
+
+        let alert = NSAlert()
+        alert.messageText = "WAIWO Debug Info"
+        alert.informativeText = info
+        alert.alertStyle = .informational
+        alert.addButton(withTitle: "OK")
+        alert.runModal()
+    }
 }
 
 @MainActor
@@ -196,22 +220,20 @@ struct WAIWOApp: App {
             Button(services.isVisible ? "Hide Overlay" : "Show Overlay") {
                 services.toggleVisibility()
             }
-            .keyboardShortcut("t", modifiers: [.option, .command])
 
             Button("Add TODO\u{2026}") {
                 services.presentInput(mode: .todo)
             }
-            .keyboardShortcut("n", modifiers: [.option, .command])
 
             Button("Add Journal Entry\u{2026}") {
                 services.presentInput(mode: .journal)
             }
-            .keyboardShortcut("j", modifiers: [.option, .command, .shift])
 
             Button("Mark Top TODO as Done") {
                 services.markTopTodoDone()
             }
-            .keyboardShortcut("d", modifiers: [.option, .command])
+
+            Divider()
 
             switch todoState.displayState {
             case .activeTodo(let text):
@@ -240,6 +262,15 @@ struct WAIWOApp: App {
 
             Divider()
 
+            SettingsLink {
+                Text("Settings\u{2026}")
+            }
+            .keyboardShortcut(",")
+
+            Button("Show Debug Info") {
+                services.showDebugInfo()
+            }
+
             Toggle("Start at Login", isOn: $launchAtLogin)
                 .onChange(of: launchAtLogin) { _, newValue in
                     setLaunchAtLogin(newValue)
@@ -251,6 +282,12 @@ struct WAIWOApp: App {
             }
         }
         .menuBarExtraStyle(.menu)
+
+        Settings {
+            SettingsView(onHotkeysChanged: {
+                AppServices.shared.reapplyHotkeys()
+            })
+        }
     }
 
     private func setLaunchAtLogin(_ enabled: Bool) {

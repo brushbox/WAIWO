@@ -4,17 +4,6 @@ import AppKit
 final class HotkeyManager: @unchecked Sendable {
     nonisolated(unsafe) static let shared = HotkeyManager()
 
-    // Key codes
-    static let keyT: UInt32 = UInt32(kVK_ANSI_T)
-    static let keyN: UInt32 = UInt32(kVK_ANSI_N)
-    static let keyJ: UInt32 = UInt32(kVK_ANSI_J)
-    static let keyD: UInt32 = UInt32(kVK_ANSI_D)
-
-    // Modifier masks
-    static let modOption: UInt32 = UInt32(optionKey)
-    static let modCmd: UInt32 = UInt32(cmdKey)
-    static let modShift: UInt32 = UInt32(shiftKey)
-
     private var hotKeyRefs: [UInt32: EventHotKeyRef] = [:]
     private var handlers: [UInt32: () -> Void] = [:]
     private var nextID: UInt32 = 1

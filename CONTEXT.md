@@ -31,3 +31,10 @@ _Flags_: Not yet wired into settings/preferences. Path will be a hardcoded const
 
 **Write Target**:
 All writes go directly to the markdown file on disk, not via Obsidian's URL scheme. The app already reads this way, and `NoteWatcher` picks up filesystem changes automatically.
+
+**Settings**:
+A standard macOS preferences window (Cmd+,) exposed via SwiftUI's `Settings` scene. Hotkeys are configurable through click-to-record capture cells with conflict validation. Stored in `UserDefaults` via `@AppStorage`-like per-value scalars.
+
+**Hotkey Action**:
+One of four named actions (Toggle Overlay, Add TODO, Add Journal Entry, Mark Top TODO as Done). Each has a default key code and modifier mask stored in `HotkeyConfig`.
+_Avoid_: Hardcoded key constants; always read from `HotkeyConfig`.
