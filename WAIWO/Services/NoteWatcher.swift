@@ -57,8 +57,6 @@ final class NoteWatcher {
     }
 
     private func startWatchingNote(at path: String) {
-        // Don't re-watch the same file
-        if watchedNotePath == path { return }
         stopWatchingNote()
 
         let fd = open(path, O_EVTONLY)
