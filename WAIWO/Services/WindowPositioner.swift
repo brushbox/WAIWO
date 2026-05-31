@@ -180,17 +180,6 @@ final class WindowPositioner {
 
         focusedWindowFrame = AccessibilityHelper.focusedWindowFrame(for: app)
 
-        if let frame = focusedWindowFrame {
-            if let screen = NSScreen.screens.first(where: { $0.frame.contains(CGPoint(x: frame.midX, y: frame.midY)) }) {
-                currentScreenNumber = screenNumber(for: screen)
-            }
-        } else {
-            let mouseScreen = NSScreen.screens.first(where: { $0.frame.contains(NSEvent.mouseLocation) })
-            if let mouseScreen {
-                currentScreenNumber = screenNumber(for: mouseScreen)
-            }
-        }
-
         reposition()
     }
 
