@@ -15,20 +15,18 @@ final class AppServices {
     var wasVisibleBeforeFocus = true
     var isVisible = true
 
-    private let dailyNotesPath = (NSHomeDirectory() as NSString).appendingPathComponent(
-        "Library/Mobile Documents/iCloud~md~obsidian/Documents/Pete/Areas/Daily Notes"
-    )
-    private let journalPath = (NSHomeDirectory() as NSString).appendingPathComponent(
-        "Library/Mobile Documents/iCloud~md~obsidian/Documents/Pete/Areas/Daily Journal"
-    )
+    var dailyNotesPath: String { PathConfig.readNotesPath() }
+    var journalPath: String { PathConfig.readJournalPath() }
 
     private var toggleHotkeyID: UInt32 = 0
     private var todoHotkeyID: UInt32 = 0
     private var journalHotkeyID: UInt32 = 0
     private var markDoneHotkeyID: UInt32 = 0
+    private var cycleDisplayHotkeyID: UInt32 = 0
 
     private init() {
         HotkeyConfig.registerDefaults()
+        PathConfig.registerDefaults()
     }
 
     func setup() {
@@ -84,12 +82,24 @@ final class AppServices {
         markDoneHotkeyID = hotkey.register(keyCode: markDoneSetting.keyCode, modifiers: markDoneSetting.modifiers) { [weak self] in
             self?.markTopTodoDone()
         }
+
+        let cycleSetting = HotkeyConfig.readRaw(for: .cycleDisplay)
+        cycleDisplayHotkeyID = hotkey.register(keyCode: cycleSetting.keyCode, modifiers: cycleSetting.modifiers) { [weak self] in
+            self?.windowPositioner?.moveToNextScreen()
+        }
     }
 
     func reapplyHotkeys() {
         guard let controller = panelController else { return }
         HotkeyManager.shared.unregisterAll()
         registerHotkeys(controller: controller)
+    }
+
+    func pathsDidChange() {
+        noteWatcher?.stop()
+        let watcher = NoteWatcher(directoryPath: dailyNotesPath, todoState: todoState)
+        watcher.start()
+        noteWatcher = watcher
     }
 
     func presentInput(mode: InputView.Mode) {
@@ -233,6 +243,10 @@ struct WAIWOApp: App {
                 services.markTopTodoDone()
             }
 
+            Button("Move to Next Display") {
+                services.windowPositioner?.moveToNextScreen()
+            }
+
             Divider()
 
             switch todoState.displayState {
@@ -286,6 +300,8 @@ struct WAIWOApp: App {
         Settings {
             SettingsView(onHotkeysChanged: {
                 AppServices.shared.reapplyHotkeys()
+            }, onPathsChanged: {
+                AppServices.shared.pathsDidChange()
             })
         }
     }

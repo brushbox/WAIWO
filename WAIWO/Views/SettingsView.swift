@@ -19,10 +19,15 @@ struct SettingsView: View {
     @State private var showValidationAlert = false
     @State private var validationMessage = ""
 
-    private var onHotkeysChanged: () -> Void
+    @State private var dailyNotesPath: String
+    @State private var journalPath: String
 
-    init(onHotkeysChanged: @escaping () -> Void) {
+    private var onHotkeysChanged: () -> Void
+    private var onPathsChanged: () -> Void
+
+    init(onHotkeysChanged: @escaping () -> Void, onPathsChanged: @escaping () -> Void) {
         self.onHotkeysChanged = onHotkeysChanged
+        self.onPathsChanged = onPathsChanged
         var kcs: [HotkeyAction: Int] = [:]
         var mods: [HotkeyAction: Int] = [:]
         for action in HotkeyAction.allCases {
@@ -32,10 +37,25 @@ struct SettingsView: View {
         }
         _capturedKeyCodes = State(initialValue: kcs)
         _capturedModifiers = State(initialValue: mods)
+        _dailyNotesPath = State(initialValue: PathConfig.readNotesPath())
+        _journalPath = State(initialValue: PathConfig.readJournalPath())
     }
 
     var body: some View {
         Form {
+            Section("Folders") {
+                folderRow(
+                    label: "Daily Notes",
+                    path: $dailyNotesPath,
+                    onChange: { PathConfig.writeNotesPath($0); onPathsChanged() }
+                )
+                folderRow(
+                    label: "Daily Journal",
+                    path: $journalPath,
+                    onChange: { PathConfig.writeJournalPath($0); onPathsChanged() }
+                )
+            }
+
             Section("Keyboard Shortcuts") {
                 ForEach(HotkeyAction.allCases) { action in
                     hotkeyRow(action: action)
@@ -43,12 +63,50 @@ struct SettingsView: View {
             }
         }
         .formStyle(.grouped)
-        .frame(width: 480, height: 320)
+        .frame(width: 520, height: 420)
         .fixedSize()
         .alert("Invalid Shortcut", isPresented: $showValidationAlert) {
             Button("OK", role: .cancel) {}
         } message: {
             Text(validationMessage)
+        }
+    }
+
+    @ViewBuilder
+    private func folderRow(label: String, path: Binding<String>, onChange: @escaping (String) -> Void) -> some View {
+        HStack {
+            Text(label)
+                .foregroundStyle(.primary)
+            Spacer()
+            TextField("", text: path)
+                .textFieldStyle(.roundedBorder)
+                .frame(minWidth: 200)
+                .onChange(of: path.wrappedValue) { _, newValue in
+                    onChange(newValue)
+                }
+            Button("Choose\u{2026}") {
+                chooseFolder(current: path.wrappedValue) { selected in
+                    if let selected {
+                        path.wrappedValue = selected
+                        onChange(selected)
+                    }
+                }
+            }
+        }
+    }
+
+    private func chooseFolder(current: String, completion: @escaping (String?) -> Void) {
+        let panel = NSOpenPanel()
+        panel.canChooseFiles = false
+        panel.canChooseDirectories = true
+        panel.canCreateDirectories = true
+        panel.directoryURL = URL(fileURLWithPath: current)
+        panel.begin { response in
+            if response == .OK, let url = panel.url {
+                completion(url.path)
+            } else {
+                completion(nil)
+            }
         }
     }
 

@@ -6,6 +6,7 @@ enum HotkeyAction: String, CaseIterable, Identifiable {
     case newTodo
     case newJournal
     case markDone
+    case cycleDisplay
 
     var id: String { rawValue }
 
@@ -15,6 +16,7 @@ enum HotkeyAction: String, CaseIterable, Identifiable {
         case .newTodo: "Add TODO"
         case .newJournal: "Add Journal Entry"
         case .markDone: "Mark Top TODO as Done"
+        case .cycleDisplay: "Move to Next Display"
         }
     }
 
@@ -24,6 +26,7 @@ enum HotkeyAction: String, CaseIterable, Identifiable {
         case .newTodo: Int(kVK_ANSI_N)
         case .newJournal: Int(kVK_ANSI_J)
         case .markDone: Int(kVK_ANSI_D)
+        case .cycleDisplay: Int(kVK_ANSI_Y)
         }
     }
 
@@ -33,6 +36,7 @@ enum HotkeyAction: String, CaseIterable, Identifiable {
         case .newTodo: Int(optionKey) | Int(cmdKey)
         case .newJournal: Int(optionKey) | Int(cmdKey) | Int(shiftKey)
         case .markDone: Int(optionKey) | Int(cmdKey)
+        case .cycleDisplay: Int(optionKey) | Int(cmdKey) | Int(shiftKey)
         }
     }
 
