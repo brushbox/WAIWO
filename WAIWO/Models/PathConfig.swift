@@ -6,13 +6,13 @@ enum PathConfig {
 
     static var defaultNotesPath: String {
         (NSHomeDirectory() as NSString).appendingPathComponent(
-            "Library/Mobile Documents/iCloud~md~obsidian/Documents/Pete/Areas/Daily Notes"
+            "Library/Mobile Documents/iCloud~md~obsidian/Documents/Pete/TODOs"
         )
     }
 
     static var defaultJournalPath: String {
         (NSHomeDirectory() as NSString).appendingPathComponent(
-            "Library/Mobile Documents/iCloud~md~obsidian/Documents/Pete/Areas/Daily Journal"
+            "Library/Mobile Documents/iCloud~md~obsidian/Documents/Pete/Daily Journal"
         )
     }
 
