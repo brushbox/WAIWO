@@ -27,15 +27,13 @@ enum JournalFormatter {
     }
 
     private static func extractHeading(from text: String) -> (heading: String, body: String) {
-        if text.hasPrefix("## ") {
-            let lines = text.split(separator: "\n", maxSplits: 1).map(String.init)
-            let heading = lines[0].trimmingPrefix(while: { $0 == "#" || $0.isWhitespace })
-                .trimmingCharacters(in: .whitespaces)
-            var body = ""
-            if lines.count > 1 {
-                body = lines[1].trimmingCharacters(in: .whitespacesAndNewlines)
-            }
-            return (heading: " \(heading)", body: body)
+        var lines = text.components(separatedBy: "\n")
+        let firstNonBlank = lines.firstIndex { !$0.trimmingCharacters(in: .whitespaces).isEmpty }
+
+        if let idx = firstNonBlank, lines[idx].hasPrefix("## ") {
+            let heading = lines[idx].dropFirst(3).trimmingCharacters(in: .whitespaces)
+            lines.remove(at: idx)
+            return (heading: " \(heading)", body: lines.joined(separator: "\n"))
         } else {
             return (heading: "", body: text)
         }

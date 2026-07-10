@@ -353,4 +353,16 @@ struct JournalWriterTests {
         let content = try String(contentsOfFile: "\(tempDir)/2026-04-23.md", encoding: .utf8)
         #expect(content == "## 10:30 Topic\n\nBody.\n")
     }
+
+    @Test func mergesHeadingOnFirstNonBlankLine() throws {
+        let tempDir = createTempDir()
+        defer { deleteTempDir(tempDir) }
+
+        let now = makeDate("2026-04-23 10:30")
+        let result = JournalWriter.write(entry: "\n\n## Topic\nBody.\n", to: tempDir, now: now)
+        try result.get()
+
+        let content = try String(contentsOfFile: "\(tempDir)/2026-04-23.md", encoding: .utf8)
+        #expect(content == "## 10:30 Topic\n\nBody.\n")
+    }
 }

@@ -29,6 +29,13 @@ final class OverlayPanelController {
         let hostingView = NSHostingView(rootView: content)
         panel.contentView = hostingView
         self.hostingView = hostingView
+        applyRoundedCorners()
+    }
+
+    private func applyRoundedCorners() {
+        panel.contentView?.wantsLayer = true
+        panel.contentView?.layer?.cornerRadius = 12
+        panel.contentView?.layer?.masksToBounds = true
     }
 
     func updateContent() {
@@ -64,6 +71,7 @@ final class OverlayPanelController {
         let hostingView = NSHostingView(rootView: input)
         inputHostingView = hostingView
         panel.contentView = hostingView
+        applyRoundedCorners()
 
         let inputHeight: CGFloat = mode == .todo ? 80 : 160
         let newFrame = NSRect(
@@ -74,6 +82,7 @@ final class OverlayPanelController {
         )
         panel.setFrame(newFrame, display: true, animate: true)
         panel.isInputMode = true
+        NSApp.activate(ignoringOtherApps: true)
         panel.makeKey()
         panel.invalidateShadow()
     }
@@ -86,6 +95,7 @@ final class OverlayPanelController {
         panel.resignKey()
         inputHostingView = nil
         panel.contentView = hostingView
+        applyRoundedCorners()
 
         let displayHeight: CGFloat = 60
         let newFrame = NSRect(
