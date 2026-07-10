@@ -192,12 +192,21 @@ struct MarkTopTodoDoneTests {
         #expect(content == "- [x] Task with [link](https://example.com)\n")
     }
 }
+
 struct JournalWriterTests {
     private func makeDate(_ string: String) -> Date {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd HH:mm"
         formatter.timeZone = TimeZone.current
         return formatter.date(from: string)!
+    }
+
+    private func createTempDir() -> String {
+        return FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString).path
+    }
+
+    private func deleteTempDir(_ tempDir: String) {
+        try? FileManager.default.removeItem(atPath: tempDir)
     }
 
     @Test func createsFileWhenNoneExists() throws {
@@ -259,5 +268,89 @@ struct JournalWriterTests {
 
         let content2 = try String(contentsOfFile: "\(tempDir)/2026-04-23.md", encoding: .utf8)
         #expect(content2 == "## 11:00\n\nDay 2 entry.\n")
+    }
+
+    @Test func mergesHeadingWithTimestamp() throws {
+        let tempDir = createTempDir()
+        defer { deleteTempDir(tempDir) }
+
+        let now = makeDate("2026-04-23 10:30")
+        let result = JournalWriter.write(entry: "## Topic", to: tempDir, now: now)
+        try result.get()
+
+        let content = try String(contentsOfFile: "\(tempDir)/2026-04-23.md", encoding: .utf8)
+        #expect(content == "## 10:30 Topic\n")
+    }
+
+    @Test func mergesHeadingWithTimestampAndBody() throws {
+        let tempDir = createTempDir()
+        defer { deleteTempDir(tempDir) }
+
+        let now = makeDate("2026-04-23 10:30")
+        let result = JournalWriter.write(entry: "## Topic\n\nBody.\n", to: tempDir, now: now)
+        try result.get()
+
+        let content = try String(contentsOfFile: "\(tempDir)/2026-04-23.md", encoding: .utf8)
+        #expect(content == "## 10:30 Topic\n\nBody.\n")
+    }
+
+    @Test func doesNotMergeSingleHash() throws {
+        let tempDir = createTempDir()
+        defer { deleteTempDir(tempDir) }
+
+        let now = makeDate("2026-04-23 10:30")
+        let result = JournalWriter.write(entry: "# Topic\n\nBody.\n", to: tempDir, now: now)
+        try result.get()
+
+        let content = try String(contentsOfFile: "\(tempDir)/2026-04-23.md", encoding: .utf8)
+        #expect(content == "## 10:30\n\n# Topic\n\nBody.\n")
+    }
+
+    @Test func doesNotMergeLeadingSpace() throws {
+        let tempDir = createTempDir()
+        defer { deleteTempDir(tempDir) }
+
+        let now = makeDate("2026-04-23 10:30")
+        let result = JournalWriter.write(entry: "  ## Topic\n\nBody.\n", to: tempDir, now: now)
+        try result.get()
+
+        let content = try String(contentsOfFile: "\(tempDir)/2026-04-23.md", encoding: .utf8)
+        #expect(content == "## 10:30\n\n  ## Topic\n\nBody.\n")
+    }
+
+    @Test func doesNotMergeMoreHashes() throws {
+        let tempDir = createTempDir()
+        defer { deleteTempDir(tempDir) }
+
+        let now = makeDate("2026-04-23 10:30")
+        let result = JournalWriter.write(entry: "#### Topic\n\nBody.\n", to: tempDir, now: now)
+        try result.get()
+
+        let content = try String(contentsOfFile: "\(tempDir)/2026-04-23.md", encoding: .utf8)
+        #expect(content == "## 10:30\n\n#### Topic\n\nBody.\n")       
+    }
+
+    @Test func doesNotMergeBarePrefix() throws {
+        let tempDir = createTempDir()
+        defer { deleteTempDir(tempDir) }
+
+        let now = makeDate("2026-04-23 10:30")
+        let result = JournalWriter.write(entry: "##\n\nBody.\n", to: tempDir, now: now)
+        try result.get()
+
+        let content = try String(contentsOfFile: "\(tempDir)/2026-04-23.md", encoding: .utf8)
+        #expect(content == "## 10:30\n\n##\n\nBody.\n")
+    }
+
+    @Test func trimsHeadingText() throws {
+        let tempDir = createTempDir()
+        defer { deleteTempDir(tempDir) }
+
+        let now = makeDate("2026-04-23 10:30")
+        let result = JournalWriter.write(entry: "## Topic   \n\nBody.\n", to: tempDir, now: now)
+        try result.get()
+
+        let content = try String(contentsOfFile: "\(tempDir)/2026-04-23.md", encoding: .utf8)
+        #expect(content == "## 10:30 Topic\n\nBody.\n")
     }
 }
