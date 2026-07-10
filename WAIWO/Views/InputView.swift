@@ -48,7 +48,11 @@ struct InputView: View {
         .padding(16)
         .frame(width: 400)
         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
-        .onAppear { isFocused = true }
+        .onAppear {
+            DispatchQueue.main.async {
+                isFocused = true
+            }
+        }
     }
 
     private func submit() {

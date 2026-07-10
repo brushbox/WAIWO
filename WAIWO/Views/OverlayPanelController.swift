@@ -57,6 +57,10 @@ final class OverlayPanelController {
             onCancel()
         }
 
+        NSApp.activate(ignoringOtherApps: true)
+        panel.isInputMode = true
+        panel.makeKey()
+
         let input = InputView(
             mode: mode,
             onSubmit: { [weak self] text in
@@ -81,10 +85,28 @@ final class OverlayPanelController {
             height: inputHeight
         )
         panel.setFrame(newFrame, display: true, animate: true)
-        panel.isInputMode = true
-        NSApp.activate(ignoringOtherApps: true)
-        panel.makeKey()
         panel.invalidateShadow()
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
+            self?.focusTextInput()
+        }
+    }
+
+    private func focusTextInput() {
+        guard let contentView = panel.contentView else { return }
+
+        func findTextInput(in view: NSView) -> NSView? {
+            if let tv = view as? NSTextView, tv.isEditable { return tv }
+            if let tf = view as? NSTextField, tf.isEnabled { return tf }
+            for subview in view.subviews {
+                if let found = findTextInput(in: subview) { return found }
+            }
+            return nil
+        }
+
+        if let textInput = findTextInput(in: contentView) {
+            panel.makeFirstResponder(textInput)
+        }
     }
 
     func dismissInput() {
