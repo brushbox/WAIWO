@@ -30,10 +30,17 @@ enum JournalFormatter {
         var lines = text.components(separatedBy: "\n")
         let firstNonBlank = lines.firstIndex { !$0.trimmingCharacters(in: .whitespaces).isEmpty }
 
-        if let idx = firstNonBlank, lines[idx].hasPrefix("## ") {
-            let heading = lines[idx].dropFirst(3).trimmingCharacters(in: .whitespaces)
+        if let idx = firstNonBlank {
+            let rawLine = lines[idx]
+            let trimmedLine = rawLine.trimmingCharacters(in: .whitespaces)
+            let headingText: String
+            if let range = trimmedLine.range(of: "^#+ ", options: .regularExpression) {
+                headingText = String(trimmedLine[range.upperBound...])
+            } else {
+                headingText = trimmedLine
+            }
             lines.remove(at: idx)
-            return (heading: " \(heading)", body: lines.joined(separator: "\n"))
+            return (heading: " \(headingText)", body: lines.joined(separator: "\n"))
         } else {
             return (heading: "", body: text)
         }

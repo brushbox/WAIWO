@@ -218,7 +218,7 @@ struct JournalWriterTests {
         try result.get()
 
         let content = try String(contentsOfFile: "\(tempDir)/2026-04-23.md", encoding: .utf8)
-        #expect(content == "## 10:30\n\nWrote some code.\n")
+        #expect(content == "## 10:30 Wrote some code.\n")
     }
 
     @Test func appendsToExistingFile() throws {
@@ -233,7 +233,7 @@ struct JournalWriterTests {
         try result.get()
 
         let content = try String(contentsOfFile: "\(tempDir)/2026-04-23.md", encoding: .utf8)
-        #expect(content == "## 09:00\n\nMorning entry.\n\n## 14:30\n\nAfternoon entry.\n")
+        #expect(content == "## 09:00\n\nMorning entry.\n\n## 14:30 Afternoon entry.\n")
     }
 
     @Test func createsDirectoryIfNeeded() throws {
@@ -264,10 +264,10 @@ struct JournalWriterTests {
         try result2.get()
 
         let content1 = try String(contentsOfFile: "\(tempDir)/2026-04-22.md", encoding: .utf8)
-        #expect(content1 == "## 10:00\n\nDay 1 entry.\n")
+        #expect(content1 == "## 10:00 Day 1 entry.\n")
 
         let content2 = try String(contentsOfFile: "\(tempDir)/2026-04-23.md", encoding: .utf8)
-        #expect(content2 == "## 11:00\n\nDay 2 entry.\n")
+        #expect(content2 == "## 11:00 Day 2 entry.\n")
     }
 
     @Test func mergesHeadingWithTimestamp() throws {
@@ -294,7 +294,7 @@ struct JournalWriterTests {
         #expect(content == "## 10:30 Topic\n\nBody.\n")
     }
 
-    @Test func doesNotMergeSingleHash() throws {
+    @Test func mergesSingleHashStripsHeading() throws {
         let tempDir = createTempDir()
         defer { deleteTempDir(tempDir) }
 
@@ -303,10 +303,10 @@ struct JournalWriterTests {
         try result.get()
 
         let content = try String(contentsOfFile: "\(tempDir)/2026-04-23.md", encoding: .utf8)
-        #expect(content == "## 10:30\n\n# Topic\n\nBody.\n")
+        #expect(content == "## 10:30 Topic\n\nBody.\n")
     }
 
-    @Test func doesNotMergeLeadingSpace() throws {
+    @Test func mergesLeadingSpaceStripsHeading() throws {
         let tempDir = createTempDir()
         defer { deleteTempDir(tempDir) }
 
@@ -315,10 +315,10 @@ struct JournalWriterTests {
         try result.get()
 
         let content = try String(contentsOfFile: "\(tempDir)/2026-04-23.md", encoding: .utf8)
-        #expect(content == "## 10:30\n\n  ## Topic\n\nBody.\n")
+        #expect(content == "## 10:30 Topic\n\nBody.\n")
     }
 
-    @Test func doesNotMergeMoreHashes() throws {
+    @Test func mergesMoreHashesStripsHeading() throws {
         let tempDir = createTempDir()
         defer { deleteTempDir(tempDir) }
 
@@ -327,10 +327,10 @@ struct JournalWriterTests {
         try result.get()
 
         let content = try String(contentsOfFile: "\(tempDir)/2026-04-23.md", encoding: .utf8)
-        #expect(content == "## 10:30\n\n#### Topic\n\nBody.\n")       
+        #expect(content == "## 10:30 Topic\n\nBody.\n")
     }
 
-    @Test func doesNotMergeBarePrefix() throws {
+    @Test func mergesBarePrefixLiteral() throws {
         let tempDir = createTempDir()
         defer { deleteTempDir(tempDir) }
 
@@ -339,7 +339,7 @@ struct JournalWriterTests {
         try result.get()
 
         let content = try String(contentsOfFile: "\(tempDir)/2026-04-23.md", encoding: .utf8)
-        #expect(content == "## 10:30\n\n##\n\nBody.\n")
+        #expect(content == "## 10:30 ##\n\nBody.\n")
     }
 
     @Test func trimsHeadingText() throws {
@@ -364,5 +364,29 @@ struct JournalWriterTests {
 
         let content = try String(contentsOfFile: "\(tempDir)/2026-04-23.md", encoding: .utf8)
         #expect(content == "## 10:30 Topic\n\nBody.\n")
+    }
+
+    @Test func mergesPlainTextFirstLine() throws {
+        let tempDir = createTempDir()
+        defer { deleteTempDir(tempDir) }
+
+        let now = makeDate("2026-04-23 10:30")
+        let result = JournalWriter.write(entry: "Just some notes\n\nBody.\n", to: tempDir, now: now)
+        try result.get()
+
+        let content = try String(contentsOfFile: "\(tempDir)/2026-04-23.md", encoding: .utf8)
+        #expect(content == "## 10:30 Just some notes\n\nBody.\n")
+    }
+
+    @Test func mergesTagLiteral() throws {
+        let tempDir = createTempDir()
+        defer { deleteTempDir(tempDir) }
+
+        let now = makeDate("2026-04-23 10:30")
+        let result = JournalWriter.write(entry: "#tag line\n\nBody.\n", to: tempDir, now: now)
+        try result.get()
+
+        let content = try String(contentsOfFile: "\(tempDir)/2026-04-23.md", encoding: .utf8)
+        #expect(content == "## 10:30 #tag line\n\nBody.\n")
     }
 }
