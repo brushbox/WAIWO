@@ -10,6 +10,8 @@ final class OverlayPanelController {
     private var isInputMode = false
     private(set) var isAnimatingOpacity = false
     private(set) var proximityOpacity: CGFloat = 1.0
+    private var preInputFrame: NSRect?
+    private var preInputAlpha: CGFloat = 1.0
 
     var isVisible: Bool { panel.isVisible }
     var isInputModeActive: Bool { isInputMode }
@@ -80,14 +82,17 @@ final class OverlayPanelController {
         panel.contentView = hostingView
         applyRoundedCorners()
 
+        preInputFrame = panel.frame
+        preInputAlpha = panel.alphaValue
+        panel.alphaValue = 1.0
+
         let inputHeight: CGFloat = mode == .todo ? 80 : 160
-        let newFrame = NSRect(
-            x: panel.frame.origin.x,
-            y: panel.frame.origin.y - (inputHeight - panel.frame.height),
-            width: 400,
-            height: inputHeight
-        )
-        panel.setFrame(newFrame, display: true, animate: true)
+        let screen = panel.screen ?? NSScreen.main ?? NSScreen.screens[0]
+        let visibleFrame = screen.visibleFrame
+        let centredX = visibleFrame.midX - 200
+        let centredY = visibleFrame.midY - (inputHeight / 2)
+        let centredFrame = NSRect(x: centredX, y: centredY, width: 400, height: inputHeight)
+        panel.setFrame(centredFrame, display: true, animate: true)
         panel.invalidateShadow()
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
@@ -122,14 +127,28 @@ final class OverlayPanelController {
         panel.contentView = hostingView
         applyRoundedCorners()
 
-        let displayHeight: CGFloat = 60
-        let newFrame = NSRect(
-            x: panel.frame.origin.x,
-            y: panel.frame.origin.y + (panel.frame.height - displayHeight),
-            width: 400,
-            height: displayHeight
-        )
-        panel.setFrame(newFrame, display: true, animate: true)
+        if let preFrame = preInputFrame {
+            let displayHeight: CGFloat = 60
+            let restoreFrame = NSRect(
+                x: preFrame.origin.x,
+                y: preFrame.origin.y + (preFrame.height - displayHeight),
+                width: preFrame.width,
+                height: displayHeight
+            )
+            panel.setFrame(restoreFrame, display: true, animate: true)
+            panel.alphaValue = preInputAlpha
+            preInputFrame = nil
+        } else {
+            let displayHeight: CGFloat = 60
+            let newFrame = NSRect(
+                x: panel.frame.origin.x,
+                y: panel.frame.origin.y + (panel.frame.height - displayHeight),
+                width: 400,
+                height: displayHeight
+            )
+            panel.setFrame(newFrame, display: true, animate: true)
+            panel.alphaValue = 1.0
+        }
         panel.invalidateShadow()
     }
 
