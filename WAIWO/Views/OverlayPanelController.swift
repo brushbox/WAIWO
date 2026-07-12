@@ -8,8 +8,11 @@ final class OverlayPanelController {
     private var hostingView: NSHostingView<OverlayContentView>?
     private var inputHostingView: NSHostingView<InputView>?
     private var isInputMode = false
+    private(set) var isAnimatingOpacity = false
+    private(set) var proximityOpacity: CGFloat = 1.0
 
     var isVisible: Bool { panel.isVisible }
+    var isInputModeActive: Bool { isInputMode }
 
     var window: NSPanel { panel }
 
@@ -131,11 +134,27 @@ final class OverlayPanelController {
     }
 
     func show() {
+        isAnimatingOpacity = true
         panel.alphaValue = 0
         panel.orderFrontRegardless()
-        NSAnimationContext.runAnimationGroup { ctx in
+        NSAnimationContext.runAnimationGroup({ ctx in
             ctx.duration = 0.3
-            panel.animator().alphaValue = 1.0
+            panel.animator().alphaValue = proximityOpacity
+        }, completionHandler: { [weak self] in
+            self?.isAnimatingOpacity = false
+        })
+    }
+
+    func setProximityOpacity(_ opacity: CGFloat, animated: Bool) {
+        guard !isAnimatingOpacity, !isInputMode, panel.isVisible else { return }
+        proximityOpacity = opacity
+        if animated {
+            NSAnimationContext.runAnimationGroup { ctx in
+                ctx.duration = 0.15
+                panel.animator().alphaValue = opacity
+            }
+        } else {
+            panel.alphaValue = opacity
         }
     }
 
@@ -158,15 +177,6 @@ final class OverlayPanelController {
 
     func fadeToFrame(_ frame: NSRect) {
         guard !isInputMode else { return }
-        NSAnimationContext.runAnimationGroup({ ctx in
-            ctx.duration = 0.2
-            panel.animator().alphaValue = 0
-        }, completionHandler: { [weak self] in
-            self?.panel.setFrame(frame, display: true, animate: false)
-            NSAnimationContext.runAnimationGroup { ctx in
-                ctx.duration = 0.3
-                self?.panel.animator().alphaValue = 1.0
-            }
-        })
+        panel.setFrame(frame, display: true, animate: false)
     }
 }

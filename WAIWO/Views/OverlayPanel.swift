@@ -19,6 +19,7 @@ final class OverlayPanel: NSPanel {
         hasShadow = true
         isMovableByWindowBackground = false
         hidesOnDeactivate = false
+        acceptsMouseMovedEvents = true
     }
 
     override var canBecomeKey: Bool { isInputMode }

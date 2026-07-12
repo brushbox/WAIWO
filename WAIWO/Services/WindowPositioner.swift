@@ -102,6 +102,7 @@ final class WindowPositioner {
     private let panelController: OverlayPanelController
     private var timer: Timer?
     private var mouseMonitor: Any?
+    private var localMouseMonitor: Any?
     private var workspaceObserver: Any?
     private var currentCursorPosition: CGPoint = .zero
     private var focusedWindowFrame: CGRect?
@@ -109,6 +110,7 @@ final class WindowPositioner {
     private var currentScreenNumber: UInt32?
     private var isPaused: Bool = false
     private var isTransitioning: Bool = false
+    private var isMouseOverWindow = false
 
     init(panelController: OverlayPanelController) {
         self.panelController = panelController
@@ -116,7 +118,14 @@ final class WindowPositioner {
 
     func start() {
         mouseMonitor = NSEvent.addGlobalMonitorForEvents(matching: .mouseMoved) { [weak self] event in
-            self?.currentCursorPosition = NSEvent.mouseLocation
+            MainActor.assumeIsolated {
+                self?.handleGlobalMouseMoved()
+            }
+        }
+
+        localMouseMonitor = NSEvent.addLocalMonitorForEvents(matching: [.mouseMoved]) { [weak self] event in
+            self?.handleLocalMouseMoved()
+            return event
         }
 
         let center = NSWorkspace.shared.notificationCenter
@@ -151,6 +160,10 @@ final class WindowPositioner {
             NSEvent.removeMonitor(monitor)
             mouseMonitor = nil
         }
+        if let monitor = localMouseMonitor {
+            NSEvent.removeMonitor(monitor)
+            localMouseMonitor = nil
+        }
         if let observer = workspaceObserver {
             NSWorkspace.shared.notificationCenter.removeObserver(observer)
             workspaceObserver = nil
@@ -171,6 +184,16 @@ final class WindowPositioner {
         reposition()
     }
 
+    func updateProximityOpacity() {
+        guard !isPaused, !panelController.isInputModeActive, panelController.isVisible else { return }
+        if isMouseOverWindow {
+            panelController.setProximityOpacity(0, animated: true)
+        } else {
+            let opacity = calculatedOpacity(cursorPosition: currentCursorPosition)
+            panelController.setProximityOpacity(opacity, animated: true)
+        }
+    }
+
     private func screenNumber(for screen: NSScreen) -> UInt32? {
         screen.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? UInt32
     }
@@ -181,6 +204,72 @@ final class WindowPositioner {
         focusedWindowFrame = AccessibilityHelper.focusedWindowFrame(for: app)
 
         reposition()
+    }
+
+    private func handleGlobalMouseMoved() {
+        currentCursorPosition = NSEvent.mouseLocation
+
+        guard panelController.isVisible, !isPaused, !panelController.isInputModeActive else { return }
+
+        let panelFrame = panelController.window.frame
+        let isOver = panelFrame.contains(currentCursorPosition)
+
+        if isMouseOverWindow {
+            if !isOver {
+                isMouseOverWindow = false
+                let opacity = calculatedOpacity(cursorPosition: currentCursorPosition)
+                panelController.setProximityOpacity(opacity, animated: true)
+            }
+            return
+        }
+
+        if isOver {
+            isMouseOverWindow = true
+            panelController.setProximityOpacity(0, animated: true)
+            return
+        }
+
+        let opacity = calculatedOpacity(cursorPosition: currentCursorPosition)
+        panelController.setProximityOpacity(opacity, animated: true)
+    }
+
+    private func handleLocalMouseMoved() {
+        guard panelController.isVisible, !isPaused, !panelController.isInputModeActive else { return }
+
+        let cursorPos = NSEvent.mouseLocation
+        let panelFrame = panelController.window.frame
+        let isOver = panelFrame.contains(cursorPos)
+
+        if isOver && !isMouseOverWindow {
+            isMouseOverWindow = true
+            panelController.setProximityOpacity(0, animated: true)
+        } else if !isOver && isMouseOverWindow {
+            isMouseOverWindow = false
+            let opacity = calculatedOpacity(cursorPosition: cursorPos)
+            panelController.setProximityOpacity(opacity, animated: true)
+        }
+    }
+
+    private func calculatedOpacity(cursorPosition: CGPoint) -> CGFloat {
+        let frame = panelController.window.frame
+        let distance = distanceToRect(cursorPosition, frame)
+
+        let minOpacity: CGFloat = 0.05
+        let effectRadius = PositionerLogic.cursorAvoidanceRadius
+
+        if distance <= 0 { return minOpacity }
+        if distance >= effectRadius { return 1.0 }
+
+        let t = distance / effectRadius
+        return minOpacity + (1.0 - minOpacity) * t
+    }
+
+    private func distanceToRect(_ point: CGPoint, _ rect: NSRect) -> CGFloat {
+        let closestX = max(rect.minX, min(point.x, rect.maxX))
+        let closestY = max(rect.minY, min(point.y, rect.maxY))
+        let dx = point.x - closestX
+        let dy = point.y - closestY
+        return hypot(dx, dy)
     }
 
     private func reposition() {
@@ -223,5 +312,7 @@ final class WindowPositioner {
         }
 
         currentPosition = result
+
+        updateProximityOpacity()
     }
 }
