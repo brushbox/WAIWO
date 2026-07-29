@@ -11,6 +11,7 @@ final class NoteWatcher {
     private var noteSource: DispatchSourceFileSystemObject?
     private var debounceWorkItem: DispatchWorkItem?
     private var watchedNotePath: String?
+    private var lastFailureReason: String?
     private(set) var lastScanTime: Date?
 
     init(directoryPath: String, todoState: TodoState) {
@@ -102,52 +103,21 @@ final class NoteWatcher {
     private func scan() {
         lastScanTime = Date()
 
-        let fileManager = FileManager.default
-        guard let files = try? fileManager.contentsOfDirectory(atPath: directoryPath) else {
-            print("NoteWatcher: failed to list directory contents")
-            todoState.displayState = .noNotesFound
-            todoState.isStale = false
-            todoState.noteDate = nil
-            return
+        let snapshot = NoteScanner.scan(directory: directoryPath)
+        lastFailureReason = snapshot.failureReason
+        if let reason = snapshot.failureReason {
+            print("NoteWatcher: \(reason)")
         }
+        todoState.apply(snapshot)
+        retargetNoteWatcher(to: snapshot.notePath)
+    }
 
-        let today = Date()
-        guard let result = NoteFinder.bestNote(from: files, today: today) else {
-            print("NoteWatcher: no matching note found")
-            todoState.displayState = .noNotesFound
-            todoState.isStale = false
-            todoState.noteDate = nil
-            return
-        }
-
-        let filePath = (directoryPath as NSString).appendingPathComponent(result.filename)
-
-        // Watch this specific file for content changes
-        startWatchingNote(at: filePath)
-
-        guard let content = try? String(contentsOfFile: filePath, encoding: .utf8) else {
-            print("NoteWatcher: failed to read file content")
-            todoState.displayState = .noNotesFound
-            todoState.isStale = false
-            todoState.noteDate = nil
-            return
-        }
-
-        todoState.isStale = result.isStale
-        todoState.noteDate = result.date
-
-        let todos = NoteParser.uncheckedTodos(from: content, limit: 3)
-        if let first = todos.first {
-            let displayText = NoteParser.displayText(from: first)
-            todoState.displayState = .activeTodo(text: displayText)
-            todoState.currentLinks = NoteParser.extractLinks(from: first)
-            todoState.upcomingTodos = Array(todos.dropFirst()).map { NoteParser.displayText(from: $0) }
-            print("NoteWatcher: found todo: \(displayText), upcoming: \(todoState.upcomingTodos.count), links: \(todoState.currentLinks.count)")
+    private func retargetNoteWatcher(to path: String?) {
+        guard path != watchedNotePath else { return }
+        if let path {
+            startWatchingNote(at: path)
         } else {
-            print("NoteWatcher: all done")
-            todoState.displayState = .allDone
-            todoState.upcomingTodos = []
-            todoState.currentLinks = []
+            stopWatchingNote()
         }
     }
 
@@ -167,6 +137,9 @@ final class NoteWatcher {
             lines.append("Last scan: \(formatter.string(from: lastScan))")
         } else {
             lines.append("Last scan: (never)")
+        }
+        if let reason = lastFailureReason {
+            lines.append("Last scan failure: \(reason)")
         }
         return lines.joined(separator: "\n")
     }

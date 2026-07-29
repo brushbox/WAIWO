@@ -35,6 +35,9 @@ All writes go directly to the markdown file on disk, not via Obsidian's URL sche
 **Settings**:
 A standard macOS preferences window (Cmd+,) exposed via SwiftUI's `Settings` scene. Hotkeys are configurable through click-to-record capture cells with conflict validation. Stored in `UserDefaults` via `@AppStorage`-like per-value scalars.
 
+**Note Snapshot**:
+The complete result of reading the daily notes directory — display state, upcoming TODOs, links, staleness, note date, chosen note path. Produced in one shot by `NoteScanner.scan` (a total function: failures are `.noNotesFound` snapshots) and applied atomically via `TodoState.apply`, so readers never see a mix of old and new scan state. `NoteWatcher` owns only the FSEvents machinery and debounce.
+
 **Overlay Layout**:
 The single source of truth for what the overlay panel should look like: frame + opacity + animation hint. Computed by the pure reducer `OverlayLayoutComputer` from events (cursor moves, ticks, input mode enter/exit, screen cycling); `OverlayController` feeds it AppKit events and `OverlayPanelController` applies the result to the NSPanel. Layout decisions never live in the adapters.
 _Avoid_: "window position"/"panel opacity" as separate concerns — they are one layout.
