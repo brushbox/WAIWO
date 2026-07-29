@@ -35,6 +35,10 @@ All writes go directly to the markdown file on disk, not via Obsidian's URL sche
 **Settings**:
 A standard macOS preferences window (Cmd+,) exposed via SwiftUI's `Settings` scene. Hotkeys are configurable through click-to-record capture cells with conflict validation. Stored in `UserDefaults` via `@AppStorage`-like per-value scalars.
 
+**Overlay Layout**:
+The single source of truth for what the overlay panel should look like: frame + opacity + animation hint. Computed by the pure reducer `OverlayLayoutComputer` from events (cursor moves, ticks, input mode enter/exit, screen cycling); `OverlayController` feeds it AppKit events and `OverlayPanelController` applies the result to the NSPanel. Layout decisions never live in the adapters.
+_Avoid_: "window position"/"panel opacity" as separate concerns — they are one layout.
+
 **Hotkey Action**:
 One of four named actions (Toggle Overlay, Add TODO, Add Journal Entry, Mark Top TODO as Done). Each has a default key code and modifier mask stored in `HotkeyConfig`.
 _Avoid_: Hardcoded key constants; always read from `HotkeyConfig`.

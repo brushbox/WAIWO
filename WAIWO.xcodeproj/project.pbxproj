@@ -13,7 +13,7 @@
 		2A5BD3F5F03C9865308960C9 /* JournalWriter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 507E157962932B727DACE8C5 /* JournalWriter.swift */; };
 		2AE0AB086CD559B588B2F23A /* OverlayPanelController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1917F90EB482A8C31C6D6BC2 /* OverlayPanelController.swift */; };
 		313C2AB6146EB866A699C6F2 /* WriterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1CB9F7A230E77F8758471E65 /* WriterTests.swift */; };
-		353E3E137F1F38DB21CD9CB3 /* WindowPositioner.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCDB50611D249D9A50DB9609 /* WindowPositioner.swift */; };
+		4F2EF0E0F789756BCB7F866A /* OverlayController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C28DA1F64A7E998C4B600BAA /* OverlayController.swift */; };
 		5A638695AB661206B3F28370 /* NoteWatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17622737B12DAE3F75BC7124 /* NoteWatcher.swift */; };
 		5D3728FB869BFB06F47C6D0A /* HotkeyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD7CBAF2AADF069623872658 /* HotkeyManager.swift */; };
 		5E358DB7F38CC4DBAA5546FE /* WAIWOApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9C6E67B74C1708D7888EAA0 /* WAIWOApp.swift */; };
@@ -66,7 +66,7 @@
 		B9C6E67B74C1708D7888EAA0 /* WAIWOApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WAIWOApp.swift; sourceTree = "<group>"; };
 		BC0E03B01FBC46811D126E3D /* WAIWOTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = WAIWOTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		C0DE5EE122B743003CB9D0FE /* AccessibilityHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessibilityHelper.swift; sourceTree = "<group>"; };
-		CCDB50611D249D9A50DB9609 /* WindowPositioner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowPositioner.swift; sourceTree = "<group>"; };
+		C28DA1F64A7E998C4B600BAA /* OverlayController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlayController.swift; sourceTree = "<group>"; };
 		CD7CBAF2AADF069623872658 /* HotkeyManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotkeyManager.swift; sourceTree = "<group>"; };
 		DDF9797B701D63DE391D50AD /* WAIWOTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WAIWOTests.swift; sourceTree = "<group>"; };
 		DE282CDB2AE1C798E47C9040 /* InputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputView.swift; sourceTree = "<group>"; };
@@ -99,8 +99,8 @@
 				F2BF6EEDD66C48765AFF84ED /* NoteParser.swift */,
 				17622737B12DAE3F75BC7124 /* NoteWatcher.swift */,
 				42279CEB638F8CE3EC30995B /* NoteWriter.swift */,
+				C28DA1F64A7E998C4B600BAA /* OverlayController.swift */,
 				65DDA645C1D1ACE84FA04E54 /* OverlayLayoutComputer.swift */,
-				CCDB50611D249D9A50DB9609 /* WindowPositioner.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -242,6 +242,7 @@
 				5A638695AB661206B3F28370 /* NoteWatcher.swift in Sources */,
 				82E1439923917BF158A0ED96 /* NoteWriter.swift in Sources */,
 				9459FDFCE83CE182471C2D26 /* OverlayContentView.swift in Sources */,
+				4F2EF0E0F789756BCB7F866A /* OverlayController.swift in Sources */,
 				28B08546E7702A64376B9711 /* OverlayLayoutComputer.swift in Sources */,
 				E2D2EF5CA7D41BD10241D7B6 /* OverlayPanel.swift in Sources */,
 				2AE0AB086CD559B588B2F23A /* OverlayPanelController.swift in Sources */,
@@ -249,7 +250,6 @@
 				E324622EC4C4C9D5055A8738 /* SettingsView.swift in Sources */,
 				7178D2284CE5D5AF6AEC3339 /* TodoState.swift in Sources */,
 				5E358DB7F38CC4DBAA5546FE /* WAIWOApp.swift in Sources */,
-				353E3E137F1F38DB21CD9CB3 /* WindowPositioner.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

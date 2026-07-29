@@ -9,7 +9,7 @@ final class AppServices {
 
     let todoState = TodoState()
     var panelController: OverlayPanelController?
-    var windowPositioner: WindowPositioner?
+    var overlayController: OverlayController?
     var noteWatcher: NoteWatcher?
     var focusMonitor: FocusMonitor?
     var wasVisibleBeforeFocus = true
@@ -37,9 +37,8 @@ final class AppServices {
         watcher.start()
         noteWatcher = watcher
 
-        let positioner = WindowPositioner(panelController: controller)
-        positioner.start()
-        windowPositioner = positioner
+        let overlay = OverlayController(panelController: controller)
+        overlayController = overlay
 
         let focus = FocusMonitor.shared
         focus.onFocusModeChanged = { [weak self] isActive in
@@ -56,7 +55,8 @@ final class AppServices {
         registerHotkeys(controller: controller)
 
         startObservingTodoState()
-        controller.show()
+        overlay.show()
+        overlay.start()
         controller.updateContent()
     }
 
@@ -85,7 +85,7 @@ final class AppServices {
 
         let cycleSetting = HotkeyConfig.readRaw(for: .cycleDisplay)
         cycleDisplayHotkeyID = hotkey.register(keyCode: cycleSetting.keyCode, modifiers: cycleSetting.modifiers) { [weak self] in
-            self?.windowPositioner?.moveToNextScreen()
+            self?.overlayController?.moveToNextScreen()
         }
     }
 
@@ -103,30 +103,23 @@ final class AppServices {
     }
 
     func presentInput(mode: InputView.Mode) {
-        guard let controller = panelController else { return }
+        guard let overlay = overlayController else { return }
 
         if !isVisible {
-            controller.show()
-            isVisible = true
+            showOverlay()
         }
 
-        windowPositioner?.pause()
-
-        controller.showInput(
+        overlay.enterInput(
             mode: mode,
             onSubmit: { [weak self] text in
                 guard let self else { return }
                 self.handleInputSubmit(text: text, mode: mode)
             },
-            onCancel: { [weak self] in
-                self?.windowPositioner?.resume()
-            }
+            onCancel: {}
         )
     }
 
     private func handleInputSubmit(text: String, mode: InputView.Mode) {
-        defer { windowPositioner?.resume() }
-
         switch mode {
         case .todo:
             let result = NoteWriter.write(todo: text, to: dailyNotesPath)
@@ -156,10 +149,7 @@ final class AppServices {
     }
 
     func toggleVisibility() {
-        guard let controller = panelController else { return }
-        if controller.window.isVisible && controller.window.isKeyWindow && controller.window.canBecomeKey {
-            controller.dismissInput()
-        }
+        overlayController?.exitInput()
         if isVisible {
             hideOverlay()
         } else {
@@ -168,14 +158,12 @@ final class AppServices {
     }
 
     func showOverlay() {
-        panelController?.show()
-        windowPositioner?.resume()
+        overlayController?.show()
         isVisible = true
     }
 
     func hideOverlay() {
-        panelController?.hide()
-        windowPositioner?.pause()
+        overlayController?.hide()
         isVisible = false
     }
 
@@ -188,7 +176,7 @@ final class AppServices {
 
     func cleanup() {
         noteWatcher?.stop()
-        windowPositioner?.stop()
+        overlayController?.stop()
         focusMonitor?.stop()
         HotkeyManager.shared.unregisterAll()
     }
@@ -244,7 +232,7 @@ struct WAIWOApp: App {
             }
 
             Button("Move to Next Display") {
-                services.windowPositioner?.moveToNextScreen()
+                services.overlayController?.moveToNextScreen()
             }
 
             Divider()
