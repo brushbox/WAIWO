@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		0A55E8346413BE68832B1272 /* InputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE282CDB2AE1C798E47C9040 /* InputView.swift */; };
 		19B73F04188CC3F464994AD7 /* NoteParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2BF6EEDD66C48765AFF84ED /* NoteParser.swift */; };
+		28B08546E7702A64376B9711 /* OverlayLayoutComputer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65DDA645C1D1ACE84FA04E54 /* OverlayLayoutComputer.swift */; };
 		2A5BD3F5F03C9865308960C9 /* JournalWriter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 507E157962932B727DACE8C5 /* JournalWriter.swift */; };
 		2AE0AB086CD559B588B2F23A /* OverlayPanelController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1917F90EB482A8C31C6D6BC2 /* OverlayPanelController.swift */; };
 		313C2AB6146EB866A699C6F2 /* WriterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1CB9F7A230E77F8758471E65 /* WriterTests.swift */; };
@@ -22,7 +23,6 @@
 		966C03E83154954AE8F5E425 /* NoteFinderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B89E795201237E2A6A907ECD /* NoteFinderTests.swift */; };
 		A3067CF9AC713D9F09BA602E /* NoteParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B91E0E6C1A834883C85C418 /* NoteParserTests.swift */; };
 		A4FEC040B35427B67B0AD7C4 /* HotkeyConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 863D526C6CED2DC3886E25C6 /* HotkeyConfig.swift */; };
-		AEACCB8B4D9987BC1E851079 /* PositionerLogicTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A0F6EC92427A9A7F0C183C2 /* PositionerLogicTests.swift */; };
 		B1D3067FC8900E7FAD58BD35 /* FocusMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF5D304B4B689329E4ED11BC /* FocusMonitor.swift */; };
 		BF689C75E9BC5FF90A5DA61E /* NoteFinder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 28E771BD932F6B801F1177EE /* NoteFinder.swift */; };
 		D64FBA04973ABB6EDD56D908 /* PathConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04E96A6A77CCD472DFEEA7D3 /* PathConfig.swift */; };
@@ -30,6 +30,7 @@
 		D9EE7B976D6F8A0A27B9BDE6 /* WAIWOTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDF9797B701D63DE391D50AD /* WAIWOTests.swift */; };
 		E2D2EF5CA7D41BD10241D7B6 /* OverlayPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F0D17F3118434D545DB9047 /* OverlayPanel.swift */; };
 		E324622EC4C4C9D5055A8738 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8118E3670C0F7D02D9BFA00 /* SettingsView.swift */; };
+		F792750DB07E3C1CFB2F2960 /* OverlayLayoutTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32018B3A3754168F7092ABF5 /* OverlayLayoutTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -50,13 +51,14 @@
 		28E771BD932F6B801F1177EE /* NoteFinder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteFinder.swift; sourceTree = "<group>"; };
 		2B91E0E6C1A834883C85C418 /* NoteParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteParserTests.swift; sourceTree = "<group>"; };
 		3037E7E8EAC61C27FA1D9F42 /* TodoState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoState.swift; sourceTree = "<group>"; };
+		32018B3A3754168F7092ABF5 /* OverlayLayoutTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlayLayoutTests.swift; sourceTree = "<group>"; };
 		3BAC2F85C41A10D252FFFB2B /* OverlayContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlayContentView.swift; sourceTree = "<group>"; };
 		42279CEB638F8CE3EC30995B /* NoteWriter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteWriter.swift; sourceTree = "<group>"; };
 		507E157962932B727DACE8C5 /* JournalWriter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JournalWriter.swift; sourceTree = "<group>"; };
+		65DDA645C1D1ACE84FA04E54 /* OverlayLayoutComputer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlayLayoutComputer.swift; sourceTree = "<group>"; };
 		66B764F098C8C4C209422F93 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		863D526C6CED2DC3886E25C6 /* HotkeyConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotkeyConfig.swift; sourceTree = "<group>"; };
 		8F0D17F3118434D545DB9047 /* OverlayPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlayPanel.swift; sourceTree = "<group>"; };
-		9A0F6EC92427A9A7F0C183C2 /* PositionerLogicTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PositionerLogicTests.swift; sourceTree = "<group>"; };
 		A8118E3670C0F7D02D9BFA00 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		AF5D304B4B689329E4ED11BC /* FocusMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusMonitor.swift; sourceTree = "<group>"; };
 		B439AC7A8F8C678B3F66427F /* WAIWO.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WAIWO.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -97,6 +99,7 @@
 				F2BF6EEDD66C48765AFF84ED /* NoteParser.swift */,
 				17622737B12DAE3F75BC7124 /* NoteWatcher.swift */,
 				42279CEB638F8CE3EC30995B /* NoteWriter.swift */,
+				65DDA645C1D1ACE84FA04E54 /* OverlayLayoutComputer.swift */,
 				CCDB50611D249D9A50DB9609 /* WindowPositioner.swift */,
 			);
 			path = Services;
@@ -107,7 +110,7 @@
 			children = (
 				B89E795201237E2A6A907ECD /* NoteFinderTests.swift */,
 				2B91E0E6C1A834883C85C418 /* NoteParserTests.swift */,
-				9A0F6EC92427A9A7F0C183C2 /* PositionerLogicTests.swift */,
+				32018B3A3754168F7092ABF5 /* OverlayLayoutTests.swift */,
 				DDF9797B701D63DE391D50AD /* WAIWOTests.swift */,
 				1CB9F7A230E77F8758471E65 /* WriterTests.swift */,
 			);
@@ -239,6 +242,7 @@
 				5A638695AB661206B3F28370 /* NoteWatcher.swift in Sources */,
 				82E1439923917BF158A0ED96 /* NoteWriter.swift in Sources */,
 				9459FDFCE83CE182471C2D26 /* OverlayContentView.swift in Sources */,
+				28B08546E7702A64376B9711 /* OverlayLayoutComputer.swift in Sources */,
 				E2D2EF5CA7D41BD10241D7B6 /* OverlayPanel.swift in Sources */,
 				2AE0AB086CD559B588B2F23A /* OverlayPanelController.swift in Sources */,
 				D64FBA04973ABB6EDD56D908 /* PathConfig.swift in Sources */,
@@ -255,7 +259,7 @@
 			files = (
 				966C03E83154954AE8F5E425 /* NoteFinderTests.swift in Sources */,
 				A3067CF9AC713D9F09BA602E /* NoteParserTests.swift in Sources */,
-				AEACCB8B4D9987BC1E851079 /* PositionerLogicTests.swift in Sources */,
+				F792750DB07E3C1CFB2F2960 /* OverlayLayoutTests.swift in Sources */,
 				D9EE7B976D6F8A0A27B9BDE6 /* WAIWOTests.swift in Sources */,
 				313C2AB6146EB866A699C6F2 /* WriterTests.swift in Sources */,
 			);

@@ -1,102 +1,6 @@
 import AppKit
 import Foundation
 
-enum PositionerLogic {
-    static let cursorAvoidanceRadius: CGFloat = 1000
-    static let cursorRepulsionExponent: CGFloat = 0.5
-    static let cursorRepulsionScaling: CGFloat = 106_000
-    static let maxPushStrength: CGFloat = 1000
-    static let minEdgeInsetFraction: CGFloat = 0.04
-    static let lazyThreshold: CGFloat = 100
-
-    static func defaultOrigin(screenBounds: CGRect, overlaySize: CGSize) -> CGPoint {
-        let padX = screenBounds.width * minEdgeInsetFraction
-        let padY = screenBounds.height * minEdgeInsetFraction
-        return CGPoint(
-            x: screenBounds.maxX - overlaySize.width - padX,
-            y: screenBounds.maxY - overlaySize.height - padY
-        )
-    }
-
-    static func bestPosition(
-        screenBounds: CGRect,
-        overlaySize: CGSize,
-        currentPosition: CGPoint?,
-        focusedWindowFrame: CGRect?,
-        cursorPosition: CGPoint
-    ) -> CGPoint {
-        var origin = currentPosition ?? defaultOrigin(screenBounds: screenBounds, overlaySize: overlaySize)
-
-        let overlayCenter = CGPoint(
-            x: origin.x + overlaySize.width / 2,
-            y: origin.y + overlaySize.height / 2
-        )
-
-        // Cursor repulsion
-        let cursorDist = hypot(
-            overlayCenter.x - cursorPosition.x,
-            overlayCenter.y - cursorPosition.y
-        )
-        if cursorDist < cursorAvoidanceRadius {
-            let raw = cursorRepulsionScaling / pow(cursorDist, cursorRepulsionExponent)
-            let pushStrength = min(raw, maxPushStrength)
-            let dx = overlayCenter.x - cursorPosition.x
-            let dy = overlayCenter.y - cursorPosition.y
-            let dist = max(cursorDist, 1)
-            let nx = dx / dist
-            let ny = dy / dist
-            origin.x += nx * pushStrength
-            origin.y += ny * pushStrength
-        }
-
-        // Focus window separation
-        if let fwf = focusedWindowFrame {
-            let overlayRect = CGRect(origin: origin, size: overlaySize)
-            if overlayRect.intersects(fwf) {
-                let fwCenter = CGPoint(x: fwf.midX, y: fwf.midY)
-                let ox = origin.x + overlaySize.width / 2
-                let oy = origin.y + overlaySize.height / 2
-                let dx = ox - fwCenter.x
-                let dy = oy - fwCenter.y
-                let dist = max(hypot(dx, dy), 1)
-                let nx = dx / dist
-                let ny = dy / dist
-                let overlapX: CGFloat
-                let overlapY: CGFloat
-                if dx > 0 {
-                    overlapX = overlayRect.maxX - fwf.minX
-                } else {
-                    overlapX = fwf.maxX - overlayRect.minX
-                }
-                if dy > 0 {
-                    overlapY = overlayRect.maxY - fwf.minY
-                } else {
-                    overlapY = fwf.maxY - overlayRect.minY
-                }
-                let pushAmount = max(overlapX, overlapY) + 20
-                origin.x += nx * pushAmount
-                origin.y += ny * pushAmount
-            }
-        }
-
-        // Clamp to screen bounds
-        let padX = screenBounds.width * minEdgeInsetFraction
-        let padY = screenBounds.height * minEdgeInsetFraction
-        origin.x = min(max(origin.x, screenBounds.minX + padX), screenBounds.maxX - overlaySize.width - padX)
-        origin.y = min(max(origin.y, screenBounds.minY + padY), screenBounds.maxY - overlaySize.height - padY)
-
-        // Lazy gate
-        if let current = currentPosition {
-            let movement = hypot(origin.x - current.x, origin.y - current.y)
-            if movement < lazyThreshold {
-                return current
-            }
-        }
-
-        return origin
-    }
-}
-
 @MainActor
 final class WindowPositioner {
     private let panelController: OverlayPanelController
@@ -255,7 +159,7 @@ final class WindowPositioner {
         let distance = distanceToRect(cursorPosition, frame)
 
         let minOpacity: CGFloat = 0.05
-        let effectRadius = PositionerLogic.cursorAvoidanceRadius
+        let effectRadius = OverlayLayoutComputer.cursorAvoidanceRadius
 
         if distance <= 0 { return minOpacity }
         if distance >= effectRadius { return 1.0 }
@@ -287,7 +191,7 @@ final class WindowPositioner {
         }
 
         let overlaySize = panelController.window.frame.size
-        let result = PositionerLogic.bestPosition(
+        let result = OverlayLayoutComputer.bestPosition(
             screenBounds: targetScreen.visibleFrame,
             overlaySize: overlaySize,
             currentPosition: currentPosition,
